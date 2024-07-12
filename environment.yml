@@ -1,0 +1,23 @@
+name: ds_101
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - opencv
+  - tesseract
+  - pdf2image
+  - ipykernel
+  - pymupdf
+  - pytesseract
+  - pip
+  - pip:
+      - pdf2image
+
+
+# conda env create -f environment.yml
+
+# conda env update -f environment.yml
