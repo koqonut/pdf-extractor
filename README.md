@@ -132,6 +132,12 @@ pdf-extractor/
 │   ├── convert_by_pymupdf.ipynb
 │   └── img_2_txt_opencv.ipynb
 │
+├── tests/                     # Test suite (pytest)
+│   ├── __init__.py
+│   ├── conftest.py            # Fixtures and mock engine
+│   ├── test_base.py           # Core plugin system tests
+│   └── test_engines.py        # Engine integration tests
+│
 └── data/                      # Data directories (gitignored)
     ├── raw/                   # Input flyer images
     ├── processed/             # Extracted text/results
@@ -139,6 +145,8 @@ pdf-extractor/
 ```
 
 **Simplified from Cookiecutter Data Science template** - removed unused ML/training scaffolding.
+
+**Test Coverage:** Comprehensive pytest suite with 50+ tests covering the plugin system, registry, and engine implementations.
 
 ---
 
@@ -158,6 +166,42 @@ pre-commit install
 ```
 
 This will automatically format your code with `black` and lint with `ruff` on every commit.
+
+**Running Tests:**
+
+```bash
+# Install dev dependencies (includes pytest)
+uv pip install -e ".[dev]"
+
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=pdf2img --cov-report=html
+# View coverage: open htmlcov/index.html
+
+# Run only fast tests (skip slow model tests)
+pytest -m "not slow"
+
+# Run specific test file
+pytest tests/test_base.py
+
+# Run with verbose output
+pytest -v
+
+# Run tests and show print statements
+pytest -s
+```
+
+**Test Organization:**
+- `tests/test_base.py` - Core plugin system tests (fast)
+- `tests/test_engines.py` - Engine integration tests (slow if models installed)
+- `tests/conftest.py` - Shared fixtures and mock engine
+
+**Test Markers:**
+- `@pytest.mark.unit` - Fast unit tests (no external dependencies)
+- `@pytest.mark.slow` - Slow tests requiring model downloads
+- `@pytest.mark.integration` - Integration tests
 
 ---
 
