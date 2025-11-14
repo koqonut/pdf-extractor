@@ -40,9 +40,11 @@ chmod +x quick_local_test_uv.sh
 
 ## What's Included
 
+- ✅ **Direct image testing** (PNG, JPG, WebP - no PDF conversion needed!)
 - ✅ **PDF to Image conversion** (PyMuPDF - 35x faster than pdf2image)
 - ✅ **Local OCR engines** (Tesseract, PaddleOCR, EasyOCR, Apple Vision)
 - ✅ **Cloud Vision API** (Claude 3.5 Sonnet - 95%+ accuracy)
+- ✅ **Batch testing** - Test multiple images at once
 - ✅ **Complete testing suite** - Compare all methods side-by-side
 - ✅ **M2 MacBook Air optimized** - Uses Neural Engine
 - ✅ **Cost analysis tools** - Local ($0) vs Cloud ($0.024/page)
@@ -52,6 +54,7 @@ chmod +x quick_local_test_uv.sh
 | Guide | Description |
 |-------|-------------|
 | [UV_QUICKSTART.md](UV_QUICKSTART.md) | UV setup and dependency management ⭐ |
+| [IMAGE_TESTING_GUIDE.md](IMAGE_TESTING_GUIDE.md) | Test directly with images (easiest!) 🖼️ |
 | [M2_SETUP_GUIDE.md](M2_SETUP_GUIDE.md) | Local OCR testing on M2 MacBook Air |
 | [VISION_API_TESTING.md](VISION_API_TESTING.md) | Cloud Vision API testing |
 | [FLYER_EXTRACTION_STRATEGY.md](FLYER_EXTRACTION_STRATEGY.md) | Complete extraction strategy |
