@@ -2,7 +2,7 @@
 
 Complete guide to test local OCR solutions on your M2 MacBook Air.
 
-## ⚡ Super Quick Start with UV (Recommended)
+## ⚡ Super Quick Start with UV (Recommended - 2025 Models!)
 
 **Fastest way to get started - under 2 minutes:**
 
@@ -10,25 +10,20 @@ Complete guide to test local OCR solutions on your M2 MacBook Air.
 # Install UV (if not already installed)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Run automated setup + test
-chmod +x quick_local_test_uv.sh
-./quick_local_test_uv.sh
-```
-
-That's it! The script will:
-1. Create virtual environment
-2. Install PaddleOCR (best local option)
-3. Run tests on your flyer
-4. Show you results
-
-**Or manually:**
-```bash
-# Setup
+# Setup virtual environment
 uv venv
 source .venv/bin/activate
-uv pip install -e ".[pdf,ocr-paddle]"
 
-# Test
+# Option A: Best accuracy (beats GPT-4o!) - MiniCPM-V 2.6
+uv pip install -e ".[m2-performance]"
+python test_2025_ocr.py --image your_flyer.png --engine minicpm
+
+# Option B: Fastest - GOT-OCR 2.0
+uv pip install -e ".[ocr-got]"
+python test_2025_ocr.py --image your_flyer.png --engine got
+
+# Option C: Previous best (still great) - PaddleOCR
+uv pip install -e ".[pdf,ocr-paddle]"
 python test_local_ocr.py --image your_flyer.png --engines paddleocr
 ```
 
@@ -48,13 +43,32 @@ Your M2 Air has several advantages for local ML/OCR:
 
 ## Quick Comparison: What You Can Test
 
+### 🚀 2025 Models (Latest & Best for M2 Air)
+
+| Engine | Speed on M2 | Accuracy | RAM (8GB M2?) | Best For |
+|--------|-------------|----------|---------------|----------|
+| **GOT-OCR 2.0** 🔥 | Very Fast (2-3s) | 90-93% | ~2GB ✅ | Fastest + excellent accuracy |
+| **Phi-3.5 Vision** | Fast (5-8s) | 88-92% | ~3-4GB ✅ | Small, efficient VLM |
+| **MiniCPM-V 2.6** 🏆 | Medium (10-15s) | **92-95%** | ~4-5GB ✅ | **Best accuracy, beats GPT-4o!** |
+| **PaliGemma 2 (3B)** | Fast (4-6s) | 87-91% | ~2-3GB ✅ | Google's offering |
+
+**See [MODERN_OCR_2025.md](MODERN_OCR_2025.md) for complete 2025 models guide.**
+
+### 2024 Models (Still Great!)
+
+| Engine | Speed | Accuracy | Setup Time | Best For |
+|--------|-------|----------|------------|----------|
+| **Surya** | Fast (2-4s) | 90-93% | 5 min | Modern transformer OCR |
+| **PaddleOCR** | Fast (3-5s) | 85-90% | 5 min | Proven, reliable |
+| **Qwen2-VL-2B** | Medium (10-15s) | 90-95% | 15 min | Structured JSON |
+
+### Traditional OCR (Baseline)
+
 | Engine | Speed | Accuracy | Setup Time | Best For |
 |--------|-------|----------|------------|----------|
 | **Tesseract** | Fast (2-3s) | 70-80% | 2 min | Quick baseline |
 | **Apple Vision** | Very Fast (1-2s) | 75-85% | 0 min (built-in!) | macOS native |
 | **EasyOCR** | Medium (5-8s) | 80-90% | 5 min | Good balance |
-| **PaddleOCR** | Fast (3-5s) | 85-90% | 5 min | ⭐ Best local option |
-| **Qwen2-VL-2B** | Medium (10-15s) | 90-95% | 15 min | Best accuracy |
 
 ---
 

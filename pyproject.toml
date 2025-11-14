@@ -111,6 +111,73 @@ doc-layoutparser = [
     "pillow>=10.0.0",
 ]
 
+# ========================================
+# 2025 Modern OCR & Vision Models
+# ========================================
+
+# GOT-OCR 2.0 - Lightweight, excellent OCR (580M params)
+ocr-got = [
+    "transformers>=4.37.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+]
+
+# MiniCPM-V 2.6 - Top OCRBench performer (8B params, M2-optimized)
+vlm-minicpm = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "bitsandbytes>=0.41.0",  # For 4-bit quantization
+    "sentencepiece>=0.1.99",
+]
+
+# Phi-3.5 Vision - Microsoft's small VLM (4.2B params, edge-optimized)
+vlm-phi3 = [
+    "transformers>=4.43.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "bitsandbytes>=0.41.0",
+]
+
+# PaliGemma 2 - Google's VLM (3B/10B/28B variants)
+vlm-paligemma = [
+    "transformers>=4.45.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+]
+
+# LLaVA-NeXT - Enhanced OCR capabilities
+vlm-llava = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+]
+
+# olmOCR - Allen AI's efficient PDF OCR (based on Qwen2-VL)
+ocr-olm = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "bitsandbytes>=0.41.0",
+]
+
+# PDF extraction tools
+pdf-marker = [
+    "marker-pdf>=1.0.0",
+    "pillow>=10.0.0",
+]
+
+pdf-plumber = [
+    "pdfplumber>=0.11.0",
+    "pandas>=2.0.0",
+]
+
 # Vision API
 vision-api = [
     "anthropic>=0.18.0",
@@ -147,30 +214,69 @@ ocr-modern = [
     "pdf2img[ocr-surya,ocr-trocr,ocr-doctr]",
 ]
 
+ocr-2025 = [
+    "pdf2img[ocr-got,ocr-olm]",  # Latest OCR models (2024-2025)
+]
+
 ocr-all = [
-    "pdf2img[ocr-traditional,ocr-modern]",
+    "pdf2img[ocr-traditional,ocr-modern,ocr-2025]",
+]
+
+vlm-2024 = [
+    "pdf2img[vlm-qwen,vlm-florence,vlm-moondream]",
+]
+
+vlm-2025 = [
+    "pdf2img[vlm-minicpm,vlm-phi3,vlm-paligemma,vlm-llava]",  # Latest VLMs
 ]
 
 vlm-all = [
-    "pdf2img[vlm-qwen,vlm-florence,vlm-moondream]",
+    "pdf2img[vlm-2024,vlm-2025]",
 ]
 
 doc-all = [
     "pdf2img[doc-donut,doc-layoutparser]",
 ]
 
-# Recommended combinations
+pdf-tools = [
+    "pdf2img[pdf,pdf-marker,pdf-plumber]",
+]
+
+# ========================================
+# Recommended Combinations for M2 Air
+# ========================================
+
+# For M2 Air with 8GB RAM - Lightweight & Fast
+m2-lightweight = [
+    "pdf2img[pdf,ocr-got,vlm-phi3]",  # <5GB RAM, excellent performance
+]
+
+# For M2 Air with 8GB RAM - Best Performance (with 4-bit quantization)
+m2-performance = [
+    "pdf2img[pdf,ocr-got,vlm-minicpm]",  # Top OCRBench scores
+]
+
+# For M2 Air with 16GB RAM - Everything
+m2-full = [
+    "pdf2img[pdf,ocr-2025,vlm-2025,pdf-tools]",
+]
+
+# Recommended combinations (updated)
 recommended-basic = [
-    "pdf2img[pdf,ocr-paddle,ocr-apple]",  # Fast local OCR
+    "pdf2img[pdf,ocr-paddle,ocr-apple]",  # Fast local OCR (original)
 ]
 
 recommended-advanced = [
-    "pdf2img[pdf,ocr-surya,vlm-qwen]",  # Best accuracy, still local
+    "pdf2img[pdf,ocr-surya,vlm-qwen]",  # Best accuracy (original)
+]
+
+recommended-2025 = [
+    "pdf2img[pdf,ocr-got,vlm-minicpm]",  # Latest & greatest (2025)
 ]
 
 # Complete installations
 local = [
-    "pdf2img[pdf,ocr-all,vlm-all,doc-all,ml,dev]",
+    "pdf2img[pdf,ocr-all,vlm-all,doc-all,pdf-tools,ml,dev]",
 ]
 
 all = [
