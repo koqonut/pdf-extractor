@@ -42,8 +42,10 @@ chmod +x quick_local_test_uv.sh
 
 - ✅ **Direct image testing** (PNG, JPG, WebP - no PDF conversion needed!)
 - ✅ **PDF to Image conversion** (PyMuPDF - 35x faster than pdf2image)
-- ✅ **Local OCR engines** (Tesseract, PaddleOCR, EasyOCR, Apple Vision)
-- ✅ **Cloud Vision API** (Claude 3.5 Sonnet - 95%+ accuracy)
+- ✅ **Traditional OCR** (Tesseract, PaddleOCR, EasyOCR, Apple Vision)
+- ✅ **Modern ML-based OCR** (Surya, TrOCR, DocTR - 90-95% accuracy) ⭐ NEW!
+- ✅ **Vision-Language Models** (Qwen2-VL, Florence-2 - structured extraction) ⭐ NEW!
+- ✅ **Cloud Vision API** (Claude 3.5 Sonnet - 96-98% accuracy)
 - ✅ **Batch testing** - Test multiple images at once
 - ✅ **Complete testing suite** - Compare all methods side-by-side
 - ✅ **M2 MacBook Air optimized** - Uses Neural Engine
@@ -53,6 +55,8 @@ chmod +x quick_local_test_uv.sh
 
 | Guide | Description |
 |-------|-------------|
+| [QUICK_INSTALL_GUIDE.md](QUICK_INSTALL_GUIDE.md) | Choose your OCR engine - quick reference ⚡ NEW! |
+| [ADVANCED_OCR_OPTIONS.md](ADVANCED_OCR_OPTIONS.md) | Modern ML options (Surya, Qwen2-VL, etc.) 🚀 NEW! |
 | [UV_QUICKSTART.md](UV_QUICKSTART.md) | UV setup and dependency management ⭐ |
 | [IMAGE_TESTING_GUIDE.md](IMAGE_TESTING_GUIDE.md) | Test directly with images (easiest!) 🖼️ |
 | [M2_SETUP_GUIDE.md](M2_SETUP_GUIDE.md) | Local OCR testing on M2 MacBook Air |

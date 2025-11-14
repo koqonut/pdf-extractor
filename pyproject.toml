@@ -32,7 +32,7 @@ pdf = [
     "pdf2image>=1.16.0",
 ]
 
-# OCR engines - Local
+# OCR engines - Traditional
 ocr-tesseract = [
     "pytesseract>=0.3.10",
     "opencv-python>=4.8.0",
@@ -54,6 +54,60 @@ ocr-easy = [
 ocr-apple = [
     "pyobjc-framework-Vision>=10.0",
     "pyobjc-framework-Quartz>=10.0",
+    "pillow>=10.0.0",
+]
+
+# OCR engines - Modern/ML-based
+ocr-surya = [
+    "surya-ocr>=0.4.0",
+    "pillow>=10.0.0",
+]
+
+ocr-trocr = [
+    "transformers>=4.35.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+]
+
+ocr-doctr = [
+    "python-doctr[torch]>=0.7.0",
+    "pillow>=10.0.0",
+]
+
+# Vision-Language Models (for structured extraction)
+vlm-qwen = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "bitsandbytes>=0.41.0",  # For 4-bit quantization
+]
+
+vlm-florence = [
+    "transformers>=4.38.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "timm>=0.9.0",
+]
+
+vlm-moondream = [
+    "transformers>=4.35.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "einops>=0.7.0",
+]
+
+# Document understanding
+doc-donut = [
+    "transformers>=4.35.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "sentencepiece>=0.1.99",
+]
+
+doc-layoutparser = [
+    "layoutparser[ocr]>=0.3.4",
+    "torchvision>=0.15.0",
     "pillow>=10.0.0",
 ]
 
@@ -84,17 +138,41 @@ docs = [
     "mkdocs>=1.5.0",
 ]
 
-# All local OCR engines
-ocr-all = [
+# Convenience groups
+ocr-traditional = [
     "pdf2img[ocr-tesseract,ocr-paddle,ocr-easy,ocr-apple]",
 ]
 
-# Complete installation (everything except API)
-local = [
-    "pdf2img[pdf,ocr-all,ml,dev]",
+ocr-modern = [
+    "pdf2img[ocr-surya,ocr-trocr,ocr-doctr]",
 ]
 
-# Full installation (everything including API)
+ocr-all = [
+    "pdf2img[ocr-traditional,ocr-modern]",
+]
+
+vlm-all = [
+    "pdf2img[vlm-qwen,vlm-florence,vlm-moondream]",
+]
+
+doc-all = [
+    "pdf2img[doc-donut,doc-layoutparser]",
+]
+
+# Recommended combinations
+recommended-basic = [
+    "pdf2img[pdf,ocr-paddle,ocr-apple]",  # Fast local OCR
+]
+
+recommended-advanced = [
+    "pdf2img[pdf,ocr-surya,vlm-qwen]",  # Best accuracy, still local
+]
+
+# Complete installations
+local = [
+    "pdf2img[pdf,ocr-all,vlm-all,doc-all,ml,dev]",
+]
+
 all = [
     "pdf2img[local,vision-api]",
 ]
