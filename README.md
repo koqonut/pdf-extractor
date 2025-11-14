@@ -31,11 +31,16 @@ uv pip install -e ".[m2-performance]"
 # Save screenshot as: data/raw/samples/test.png
 
 # 5. Test it!
-python test_2025_ocr.py --image data/raw/samples/test.png --engine minicpm
-# Or for fastest: --engine got
+python test_ocr.py test --image data/raw/samples/test.png --engine minicpm
+# Or for fastest: python test_ocr.py test --image test.png --engine got-ocr
+
+# Compare all engines
+python test_ocr.py compare --image test.png
 ```
 
 **Result:** Items and prices extracted in 10-15 seconds with **92-95% accuracy** (beats GPT-4o!), **$0 cost**, saves ~$290 per 1000 pages vs Claude API.
+
+**New:** Unified test script with plugin system - adding new OCR engines is now trivial!
 
 📖 **[Complete Getting Started Guide →](GETTING_STARTED.md)**
 
@@ -153,6 +158,87 @@ pre-commit install
 ```
 
 This will automatically format your code with `black` and lint with `ruff` on every commit.
+
+---
+
+## 🔌 Plugin System for OCR Engines
+
+The project uses a **plugin pattern** that makes adding new OCR engines trivial!
+
+### Using Engines
+
+```python
+# List all available engines
+from pdf2img.engines import list_engines
+print(list_engines())  # ['minicpm', 'got-ocr', 'phi3', 'surya', ...]
+
+# Get an engine
+from pdf2img.engines import get_engine
+engine = get_engine('minicpm')
+
+# Extract text
+result = engine.extract('flyer.png')
+print(result.text)
+```
+
+### Adding a New Engine (Super Easy!)
+
+1. **Create** `pdf2img/engines/myengine.py`:
+
+```python
+from pdf2img.engines import OCREngine, OCRResult, register_engine
+
+@register_engine  # Auto-registers!
+class MyEngine(OCREngine):
+    name = "my-engine"
+    model_size = "1B"
+    ram_usage_gb = 2.0
+
+    def extract(self, image_path, **kwargs):
+        # Your OCR code here
+        return OCRResult(
+            engine=self.name,
+            text=extracted_text,
+            processing_time=time_taken,
+            model_size=self.model_size
+        )
+```
+
+2. **Import** in `pdf2img/engines/__init__.py`:
+
+```python
+from .myengine import MyEngine  # That's it!
+```
+
+3. **Test** immediately:
+
+```bash
+python test_ocr.py test --image flyer.png --engine my-engine
+```
+
+**No need to modify test scripts, CLI parsers, or comparison logic!** It all works automatically.
+
+### CLI Commands
+
+```bash
+# List all engines
+python test_ocr.py list
+
+# Get engine info
+python test_ocr.py info --engine minicpm
+
+# Test one engine
+python test_ocr.py test --image flyer.png --engine got-ocr
+
+# Compare all engines
+python test_ocr.py compare --image flyer.png
+
+# Batch process
+python test_ocr.py batch data/images/*.png --engine phi3
+
+# Show engines table
+python test_ocr.py engines-table
+```
 
 ---
 
