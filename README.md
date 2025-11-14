@@ -1,42 +1,53 @@
-# pdf2img
+# pdf2img - Flyer Data Extraction
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-Extract images from PDFs and flyers with OCR. Test local (free) vs cloud (accurate) extraction methods.
+**Extract items and prices from retail flyers using OCR and ML.**
 
-## Quick Start
+Compare local (free, 90-95% accuracy) vs cloud (paid, 96-98% accuracy) extraction methods.
 
-**Using UV (Recommended - 10x faster):**
+---
+
+## 🚀 Quick Start (5 Minutes)
 
 ```bash
-# Install UV
+# 1. Install UV package manager
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Setup and test (choose one):
-
-# Option 1: Local OCR only (M2 Air optimized)
+# 2. Setup project
+git clone <this-repo>
+cd pdf-extractor
 uv venv && source .venv/bin/activate
-uv pip install -e ".[pdf,ocr-paddle]"
 
-# Option 2: Cloud Vision API
-uv venv && source .venv/bin/activate
-uv pip install -e ".[vision-api]"
-export ANTHROPIC_API_KEY='your-key'
+# 3. Install best local OCR (Surya - 90-93% accuracy, free)
+uv pip install -e ".[ocr-surya]"
 
-# Option 3: Everything
-uv venv && source .venv/bin/activate
-uv pip install -e ".[all]"
+# 4. Get a flyer image from https://flipp.com
+# Save screenshot as: data/raw/samples/test.png
+
+# 5. Test it!
+python test_advanced_ocr.py --image data/raw/samples/test.png --engine surya
 ```
 
-**Or use automated script:**
-```bash
-chmod +x quick_local_test_uv.sh
-./quick_local_test_uv.sh
-```
+**Result:** Items and prices extracted in 2-4 seconds with 90-93% accuracy, $0 cost.
 
-**📖 See [UV_QUICKSTART.md](UV_QUICKSTART.md) for detailed instructions**
+📖 **[Complete Getting Started Guide →](GETTING_STARTED.md)**
+
+---
+
+## 🎯 Comparison: Local vs Cloud
+
+| Method | Accuracy | Speed | Cost (1000 flyers) | Runs On |
+|--------|----------|-------|-------------------|---------|
+| **Surya** (Modern OCR) | 90-93% | 2-4s | **$0** | M2 Air |
+| **Qwen2-VL** (Vision-LLM) | 92-95% | 10-15s | **$0** | M2 Air |
+| **Claude API** (Cloud) | 96-98% | 3-4s | **$290** | Cloud |
+
+**Recommendation:** Start with Surya (free, fast, good accuracy). Add Qwen2-VL for hard cases. Use Claude API only if needed.
+
+📖 **[See all options and detailed comparison →](GETTING_STARTED.md#extraction-approaches-explained)**
 
 ## What's Included
 
@@ -51,19 +62,42 @@ chmod +x quick_local_test_uv.sh
 - ✅ **M2 MacBook Air optimized** - Uses Neural Engine
 - ✅ **Cost analysis tools** - Local ($0) vs Cloud ($0.024/page)
 
-## Documentation
+## 📚 Documentation
+
+### Start Here
 
 | Guide | Description |
 |-------|-------------|
-| [QUICK_INSTALL_GUIDE.md](QUICK_INSTALL_GUIDE.md) | Choose your OCR engine - quick reference ⚡ NEW! |
-| [ADVANCED_OCR_OPTIONS.md](ADVANCED_OCR_OPTIONS.md) | Modern ML options (Surya, Qwen2-VL, etc.) 🚀 NEW! |
-| [UV_QUICKSTART.md](UV_QUICKSTART.md) | UV setup and dependency management ⭐ |
-| [IMAGE_TESTING_GUIDE.md](IMAGE_TESTING_GUIDE.md) | Test directly with images (easiest!) 🖼️ |
-| [M2_SETUP_GUIDE.md](M2_SETUP_GUIDE.md) | Local OCR testing on M2 MacBook Air |
-| [VISION_API_TESTING.md](VISION_API_TESTING.md) | Cloud Vision API testing |
-| [FLYER_EXTRACTION_STRATEGY.md](FLYER_EXTRACTION_STRATEGY.md) | Complete extraction strategy |
-| [FLYER_SOURCES_ANALYSIS.md](FLYER_SOURCES_ANALYSIS.md) | Canadian grocery flyer sources |
-| [CLAUDE.md](CLAUDE.md) | Complete project documentation |
+| **[GETTING_STARTED.md](GETTING_STARTED.md)** ⭐ | **Complete beginner guide - start here!** |
+
+### Quick References
+
+| Guide | Description |
+|-------|-------------|
+| [QUICK_INSTALL_GUIDE.md](QUICK_INSTALL_GUIDE.md) | All installation commands in one place |
+| [UV_QUICKSTART.md](UV_QUICKSTART.md) | UV package manager setup |
+
+### Detailed Guides
+
+| Guide | Description |
+|-------|-------------|
+| [ADVANCED_OCR_OPTIONS.md](ADVANCED_OCR_OPTIONS.md) | All OCR engines explained (Surya, Qwen2-VL, TrOCR, etc.) |
+| [M2_SETUP_GUIDE.md](M2_SETUP_GUIDE.md) | M2 MacBook Air specific optimizations |
+| [IMAGE_TESTING_GUIDE.md](IMAGE_TESTING_GUIDE.md) | Batch testing workflows |
+| [VISION_API_TESTING.md](VISION_API_TESTING.md) | Claude Vision API guide |
+
+### Strategy & Sources
+
+| Guide | Description |
+|-------|-------------|
+| [FLYER_EXTRACTION_STRATEGY.md](FLYER_EXTRACTION_STRATEGY.md) | Multi-tier extraction strategy (OCR → LLM → API) |
+| [FLYER_SOURCES_ANALYSIS.md](FLYER_SOURCES_ANALYSIS.md) | Canadian grocery flyer sources (Flipp, Metro, etc.) |
+
+### For AI Assistants
+
+| Guide | Description |
+|-------|-------------|
+| [CLAUDE.md](CLAUDE.md) | Complete codebase documentation for AI assistants |
 
 ## Project Organization
 
