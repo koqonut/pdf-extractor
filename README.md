@@ -90,93 +90,69 @@ python test_2025_ocr.py --image data/raw/samples/test.png --engine minicpm
 
 ## 📚 Documentation
 
-### Start Here
-
 | Guide | Description |
 |-------|-------------|
-| **[GETTING_STARTED.md](GETTING_STARTED.md)** ⭐ | **Complete beginner guide - start here!** |
+| **[GETTING_STARTED.md](GETTING_STARTED.md)** ⭐ | **Complete guide: installation, usage, testing, comparison** |
+| **[MODERN_OCR_2025.md](MODERN_OCR_2025.md)** 🚀 | **2025 models reference: MiniCPM-V, GOT-OCR, Phi-3.5, M2 optimization** |
+| [CLAUDE.md](CLAUDE.md) | Codebase documentation for AI assistants |
 
-### Quick References
-
-| Guide | Description |
-|-------|-------------|
-| [QUICK_INSTALL_GUIDE.md](QUICK_INSTALL_GUIDE.md) | All installation commands in one place |
-| [UV_QUICKSTART.md](UV_QUICKSTART.md) | UV package manager setup |
-
-### Detailed Guides
-
-| Guide | Description |
-|-------|-------------|
-| **[MODERN_OCR_2025.md](MODERN_OCR_2025.md)** 🚀 | **Latest 2025 models - MiniCPM-V, GOT-OCR, Phi-3.5, PaliGemma 2** |
-| [ADVANCED_OCR_OPTIONS.md](ADVANCED_OCR_OPTIONS.md) | 2024 OCR engines (Surya, Qwen2-VL, TrOCR, Florence-2, etc.) |
-| [M2_SETUP_GUIDE.md](M2_SETUP_GUIDE.md) | M2 MacBook Air specific optimizations |
-| [IMAGE_TESTING_GUIDE.md](IMAGE_TESTING_GUIDE.md) | Batch testing workflows |
-| [VISION_API_TESTING.md](VISION_API_TESTING.md) | Claude Vision API guide |
-
-### Strategy & Sources
-
-| Guide | Description |
-|-------|-------------|
-| [FLYER_EXTRACTION_STRATEGY.md](FLYER_EXTRACTION_STRATEGY.md) | Multi-tier extraction strategy (OCR → LLM → API) |
-| [FLYER_SOURCES_ANALYSIS.md](FLYER_SOURCES_ANALYSIS.md) | Canadian grocery flyer sources (Flipp, Metro, etc.) |
-
-### For AI Assistants
-
-| Guide | Description |
-|-------|-------------|
-| [CLAUDE.md](CLAUDE.md) | Complete codebase documentation for AI assistants |
+That's it! Everything you need is in these 3 files.
 
 ## Project Organization
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
+pdf-extractor/
+├── README.md                  # This file - quick start and overview
+├── GETTING_STARTED.md         # Complete guide (installation, usage, comparison)
+├── MODERN_OCR_2025.md         # 2025 models reference and M2 optimization
+├── CLAUDE.md                  # Codebase docs for AI assistants
 │
-├── docs               <- A default mkdocs project; see mkdocs.org for details
+├── pyproject.toml             # Modern Python project config (UV-compatible)
+├── .python-version            # Python version (3.10)
+├── .pre-commit-config.yaml    # Auto-formatting hooks (black, ruff)
 │
-├── models             <- Trained and serialized models, model predictions, or model summaries
+├── pdf2img/                   # Main package
+│   ├── __init__.py
+│   └── config.py              # Configuration and path management
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── test_2025_ocr.py           # Test 2025 models (MiniCPM-V, GOT-OCR, Phi-3.5)
+├── test_advanced_ocr.py       # Test 2024 models (Surya, Qwen2-VL)
+├── test_local_ocr.py          # Test traditional OCR (PaddleOCR, Tesseract)
+├── test_vision_api.py         # Test Claude Vision API
+├── batch_test_images.py       # Batch testing multiple images
+├── compare_all_methods.py     # Side-by-side comparison
 │
-├── pyproject.toml     <- Project configuration file with package metadata for pdf2img
-│                         and configuration for tools like black
+├── notebooks/                 # Jupyter notebooks for exploration
+│   ├── convert_by_pdf2img.ipynb
+│   ├── convert_by_pymupdf.ipynb
+│   └── img_2_txt_opencv.ipynb
 │
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── pdf2img                <- Source code for use in this project.
-    │
-    ├── __init__.py    <- Makes pdf2img a Python module
-    │
-    ├── data           <- Scripts to download or generate data
-    │   └── make_dataset.py
-    │
-    ├── features       <- Scripts to turn raw data into features for modeling
-    │   └── build_features.py
-    │
-    ├── models         <- Scripts to train models and then use trained models to make
-    │   │                 predictions
-    │   ├── predict_model.py
-    │   └── train_model.py
-    │
-    └── visualization  <- Scripts to create exploratory and results oriented visualizations
-        └── visualize.py
+└── data/                      # Data directories (gitignored)
+    ├── raw/                   # Input flyer images
+    ├── processed/             # Extracted text/results
+    └── external/              # Third-party data
 ```
 
---------
+**Simplified from Cookiecutter Data Science template** - removed unused ML/training scaffolding.
+
+---
+
+## 🛠️ Development Setup
+
+**Auto-formatting with pre-commit** (optional but recommended):
+
+```bash
+# Install pre-commit
+uv pip install pre-commit
+
+# Install git hooks
+pre-commit install
+
+# Now black and ruff will auto-format on every commit
+# Or run manually: pre-commit run --all-files
+```
+
+This will automatically format your code with `black` and lint with `ruff` on every commit.
+
+---
 
