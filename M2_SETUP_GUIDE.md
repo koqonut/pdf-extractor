@@ -2,6 +2,40 @@
 
 Complete guide to test local OCR solutions on your M2 MacBook Air.
 
+## ⚡ Super Quick Start with UV (Recommended)
+
+**Fastest way to get started - under 2 minutes:**
+
+```bash
+# Install UV (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Run automated setup + test
+chmod +x quick_local_test_uv.sh
+./quick_local_test_uv.sh
+```
+
+That's it! The script will:
+1. Create virtual environment
+2. Install PaddleOCR (best local option)
+3. Run tests on your flyer
+4. Show you results
+
+**Or manually:**
+```bash
+# Setup
+uv venv
+source .venv/bin/activate
+uv pip install -e ".[pdf,ocr-paddle]"
+
+# Test
+python test_local_ocr.py --image your_flyer.png --engines paddleocr
+```
+
+**📖 For detailed UV usage, see [UV_QUICKSTART.md](UV_QUICKSTART.md)**
+
+---
+
 ## Why Test Locally on M2 Air?
 
 Your M2 Air has several advantages for local ML/OCR:
