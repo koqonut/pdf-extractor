@@ -1,8 +1,8 @@
 """
 Surya OCR Engine
 
-Modern transformer-based OCR with excellent accuracy.
-One of the best 2024 OCR engines.
+Modern transformer-based OCR with excellent accuracy (90+ languages).
+Uses 2025 predictor-based API for optimal performance.
 """
 
 import time
@@ -16,13 +16,16 @@ from .base import OCREngine, OCRResult, register_engine
 
 @register_engine
 class SuryaEngine(OCREngine):
-    """Surya - Modern transformer OCR
+    """Surya - Modern transformer OCR (90+ languages)
+
+    Uses 2025 predictor-based API for optimal performance.
 
     Performance:
         - Accuracy: 90-93%
         - Speed: 2-4s per page
         - RAM: ~2GB
         - Model size: ~400MB download
+        - Languages: 90+ languages supported
 
     Example:
         engine = SuryaEngine()
@@ -32,29 +35,28 @@ class SuryaEngine(OCREngine):
     name = "surya"
     model_size = "400MB"
     ram_usage_gb = 2.0
-    description = "Surya - Modern transformer OCR, 90-93% accuracy"
+    description = "Surya - Modern OCR (90+ languages), works on CPU/MPS/CUDA"
 
     def _load_model(self):
-        """Lazy load model"""
+        """Lazy load model (2025 API)"""
         if self._model is not None:
             return
 
         logger.info("Loading Surya OCR...")
 
-        from surya.model.detection import segformer
-        from surya.model.recognition.model import load_model as load_rec_model
-        from surya.model.recognition.processor import load_processor
-        from surya.ocr import run_ocr
+        from surya.detection import DetectionPredictor
+        from surya.foundation import FoundationPredictor
+        from surya.recognition import RecognitionPredictor
 
-        # Load models
-        self._det_model = segformer.load_model()
-        self._rec_model = load_rec_model()
-        self._processor = load_processor()
+        # Load predictors (new 2025 API)
+        self._foundation_predictor = FoundationPredictor()
+        self._recognition_predictor = RecognitionPredictor(self._foundation_predictor)
+        self._detection_predictor = DetectionPredictor()
 
-        # Store run_ocr function
-        self._run_ocr = run_ocr
+        # Mark as loaded
+        self._model = True
 
-        logger.success("Surya OCR loaded successfully")
+        logger.success("Surya OCR loaded successfully (2025 API)")
 
     def extract(self, image_path: Path, **kwargs) -> OCRResult:
         """Extract text from image
@@ -75,12 +77,12 @@ class SuryaEngine(OCREngine):
             # Load image
             image = Image.open(image_path)
 
-            # Run OCR
+            # Run OCR (2025 API - uses predictor classes)
             logger.info(f"Running Surya OCR extraction on {image_path.name}...")
 
             # Surya expects a list of images
-            predictions = self._run_ocr(
-                [image], [["en"]], self._det_model, self._rec_model, self._processor  # Language
+            predictions = self._recognition_predictor(
+                [image], det_predictor=self._detection_predictor
             )
 
             # Extract text from predictions
