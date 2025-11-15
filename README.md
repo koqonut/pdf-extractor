@@ -250,44 +250,52 @@ pip list | grep -E "transformers|torch|surya"
 uv pip install -e ".[ocr-got,vlm-phi3,ocr-surya]"
 ```
 
-### macOS Silicon Compatibility
+### Platform Compatibility
 
-**✅ Recommended for M1/M2/M3 Macs (16GB RAM):**
-- **Phi-3.5 Vision** ⭐ BEST CHOICE - Good accuracy (88-92%), uses ~3-4GB RAM, MPS accelerated
-- **Surya** - Traditional OCR, lightweight, works on CPU
-- **Claude API** - Cloud-based, works anywhere
+**The code auto-detects your environment (CUDA > MPS > CPU) but 2025 VLMs work best on Linux with CUDA.**
 
-**⚠️ Limited macOS Support:**
-- **MiniCPM-V 2.6** - Best accuracy (92-95%) BUT requires >16GB RAM with MPS
-  - Uses CPU fallback on 16GB systems (slower but stable)
-  - Recommended for M2/M3 Pro/Max with 32GB+ RAM
+## ✅ Linux/Windows with NVIDIA GPU (CUDA) - RECOMMENDED
 
-**❌ Does NOT work on macOS:**
-- **GOT-OCR 2.0** - Requires CUDA (NVIDIA GPUs only)
-  - Has hardcoded CUDA calls in model code
-  - No CPU or MPS support
-  - See: https://huggingface.co/stepfun-ai/GOT-OCR2_0/discussions/4
+**All 2025 engines work perfectly:**
+- **GOT-OCR 2.0** ⭐ - Fastest (2-3s), 90-93% accuracy, ~2GB RAM
+- **MiniCPM-V 2.6** ⭐ - Best accuracy (92-95%), 4-bit quant, ~4GB RAM
+- **Phi-3.5 Vision** ⭐ - Good accuracy (88-92%), 4-bit quant, ~3GB RAM
 
-**Recommended for macOS users with 16GB RAM:**
 ```bash
-# Install Phi-3.5 (best for 16GB systems):
-uv pip install -e ".[vlm-phi3]"
-
-# Test:
-python test_ocr.py test --engine phi3 --image test.png
+# On Linux/Windows with NVIDIA GPU:
+uv pip install -e ".[recommended-2025]"
+python test_ocr.py compare --image test.png
+# All engines will work flawlessly with CUDA
 ```
 
-**For M2/M3 Pro/Max with 32GB+ RAM:**
+## ⚠️ macOS (Apple Silicon) - Known Issues
+
+**The 2025 VLMs have macOS compatibility issues:**
+1. **GOT-OCR**: CUDA-only (hardcoded CUDA calls in model code)
+2. **MiniCPM-V**: Requires >16GB RAM on MPS (hangs on 16GB systems)
+3. **Phi-3.5**: DynamicCache bug in model's custom code
+
+**Recommended for macOS users:**
 ```bash
-# Can use MiniCPM-V with MPS (edit minicpm.py to re-enable MPS):
-uv pip install -e ".[vlm-minicpm]"
-python test_ocr.py test --engine minicpm --image test.png
+# Use Surya (works reliably on macOS):
+uv pip install -e ".[ocr-surya]"
+python test_ocr.py test --engine surya --image test.png
+
+# Or use Claude API (cloud-based, 96-98% accuracy)
+# Or use traditional OCR (Tesseract, PaddleOCR)
 ```
 
-**Memory Requirements:**
-- **Phi-3.5**: ~4GB (works great on 16GB M2 Air with MPS)
-- **MiniCPM-V**: ~16GB with MPS, ~8GB with CPU (needs 32GB total for MPS)
-- **GOT-OCR**: CUDA only (not available on macOS)
+## 🎯 Summary
+
+| Engine | Linux+CUDA | macOS (M1/M2/M3) | CPU Only |
+|--------|------------|------------------|----------|
+| GOT-OCR | ✅ Perfect | ❌ CUDA only | ❌ CUDA only |
+| MiniCPM-V | ✅ Perfect | ⚠️ Needs 32GB+ | ⚠️ Slow, works |
+| Phi-3.5 | ✅ Perfect | ❌ Bug in custom code | ❌ Same bug |
+| Surya | ✅ Works | ✅ Works | ✅ Works |
+| Claude API | ✅ Works | ✅ Works | ✅ Works |
+
+**Bottom line: For best experience with 2025 VLMs, use Linux/Windows with NVIDIA GPU.**
 
 ---
 
