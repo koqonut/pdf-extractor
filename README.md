@@ -107,46 +107,40 @@ That's it! Everything you need is in these 3 files.
 
 ```
 pdf-extractor/
-├── README.md                  # This file - quick start and overview
-├── GETTING_STARTED.md         # Complete guide (installation, usage, comparison)
-├── MODERN_OCR_2025.md         # 2025 models reference and M2 optimization
-├── CLAUDE.md                  # Codebase docs for AI assistants
+├── README.md                  # Quick start and overview
+├── GETTING_STARTED.md         # Complete guide
+├── MODERN_OCR_2025.md         # 2025 models reference
+├── CLAUDE.md                  # AI assistant docs
 │
-├── pyproject.toml             # Modern Python project config (UV-compatible)
-├── .python-version            # Python version (3.10)
-├── .pre-commit-config.yaml    # Auto-formatting hooks (black, ruff)
+├── pyproject.toml             # Modern Python config (UV-compatible)
+├── .pre-commit-config.yaml    # Auto-formatting hooks
+│
+├── test_ocr.py                # 🎯 Main CLI - unified test interface
 │
 ├── pdf2img/                   # Main package
-│   ├── __init__.py
-│   └── config.py              # Configuration and path management
+│   ├── config.py              # Configuration & paths
+│   └── engines/               # OCR engine plugins
+│       ├── base.py            # Plugin system core
+│       ├── minicpm.py         # MiniCPM-V 2.6 (best accuracy)
+│       ├── got_ocr.py         # GOT-OCR 2.0 (fastest)
+│       └── phi3.py            # Phi-3.5 Vision
 │
-├── test_2025_ocr.py           # Test 2025 models (MiniCPM-V, GOT-OCR, Phi-3.5)
-├── test_advanced_ocr.py       # Test 2024 models (Surya, Qwen2-VL)
-├── test_local_ocr.py          # Test traditional OCR (PaddleOCR, Tesseract)
-├── test_vision_api.py         # Test Claude Vision API
-├── batch_test_images.py       # Batch testing multiple images
-├── compare_all_methods.py     # Side-by-side comparison
-│
-├── notebooks/                 # Jupyter notebooks for exploration
-│   ├── convert_by_pdf2img.ipynb
-│   ├── convert_by_pymupdf.ipynb
-│   └── img_2_txt_opencv.ipynb
-│
-├── tests/                     # Test suite (pytest)
-│   ├── __init__.py
-│   ├── conftest.py            # Fixtures and mock engine
-│   ├── test_base.py           # Core plugin system tests
+├── tests/                     # Pytest test suite (44 tests, 56% coverage)
+│   ├── conftest.py            # Fixtures & mock engine
+│   ├── test_base.py           # Core plugin tests
 │   └── test_engines.py        # Engine integration tests
 │
+├── scripts/                   # Utility scripts (mostly deprecated)
+│   └── README.md              # Use test_ocr.py instead!
+│
+├── notebooks/                 # Jupyter exploration
+├── .github/                   # CI/CD & PR templates
 └── data/                      # Data directories (gitignored)
-    ├── raw/                   # Input flyer images
-    ├── processed/             # Extracted text/results
-    └── external/              # Third-party data
 ```
 
-**Simplified from Cookiecutter Data Science template** - removed unused ML/training scaffolding.
+**Clean & minimal** - removed unused ML scaffolding, moved utilities to `scripts/`.
 
-**Test Coverage:** Comprehensive pytest suite with 50+ tests covering the plugin system, registry, and engine implementations.
+**Industry standard structure:** Config at root, source in package, tests separate, scripts organized.
 
 ---
 
