@@ -67,7 +67,16 @@ class MiniCPMEngine(OCREngine):
             )
             use_4bit = False
 
-        logger.info(f"Loading MiniCPM-V 2.6 (4-bit={use_4bit})...")
+        # Determine device: MPS (Apple Silicon) > CUDA > CPU
+        if torch.backends.mps.is_available():
+            device = "mps"
+            logger.info(f"Loading MiniCPM-V 2.6 on Apple Silicon (MPS, 4-bit={use_4bit})...")
+        elif torch.cuda.is_available():
+            device = "cuda"
+            logger.info(f"Loading MiniCPM-V 2.6 on CUDA (4-bit={use_4bit})...")
+        else:
+            device = "cpu"
+            logger.info(f"Loading MiniCPM-V 2.6 on CPU (4-bit={use_4bit})...")
 
         model_name = "openbmb/MiniCPM-V-2_6"
 
@@ -85,11 +94,10 @@ class MiniCPMEngine(OCREngine):
             self._model = AutoModel.from_pretrained(
                 model_name,
                 trust_remote_code=True,
-                device_map="auto",
                 torch_dtype=torch.float16,
-            )
+            ).to(device)
 
-        logger.success("MiniCPM-V 2.6 loaded successfully")
+        logger.success(f"MiniCPM-V 2.6 loaded successfully on {device}")
 
     def extract(
         self, image_path: Path, extract_json: bool = False, prompt: str = None, **kwargs

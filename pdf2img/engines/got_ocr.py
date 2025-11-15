@@ -38,9 +38,19 @@ class GOTOCREngine(OCREngine):
         if self._model is not None:
             return
 
-        logger.info("Loading GOT-OCR 2.0...")
-
+        import torch
         from transformers import AutoModel, AutoTokenizer
+
+        # Determine device: MPS (Apple Silicon) > CUDA > CPU
+        if torch.backends.mps.is_available():
+            device = "mps"
+            logger.info("Loading GOT-OCR 2.0 on Apple Silicon (MPS)...")
+        elif torch.cuda.is_available():
+            device = "cuda"
+            logger.info("Loading GOT-OCR 2.0 on CUDA...")
+        else:
+            device = "cpu"
+            logger.info("Loading GOT-OCR 2.0 on CPU...")
 
         model_name = "stepfun-ai/GOT-OCR2_0"
 
@@ -50,11 +60,10 @@ class GOTOCREngine(OCREngine):
             model_name,
             trust_remote_code=True,
             low_cpu_mem_usage=True,
-            device_map="auto",
             use_safetensors=True,
-        )
+        ).to(device)
 
-        logger.success("GOT-OCR 2.0 loaded successfully")
+        logger.success(f"GOT-OCR 2.0 loaded successfully on {device}")
 
     def extract(self, image_path: Path, structured: bool = False, **kwargs) -> OCRResult:
         """Extract text from image

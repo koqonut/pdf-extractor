@@ -64,7 +64,16 @@ class Phi3VisionEngine(OCREngine):
             )
             use_4bit = False
 
-        logger.info(f"Loading Phi-3.5 Vision (4-bit={use_4bit})...")
+        # Determine device: MPS (Apple Silicon) > CUDA > CPU
+        if torch.backends.mps.is_available():
+            device = "mps"
+            logger.info(f"Loading Phi-3.5 Vision on Apple Silicon (MPS, 4-bit={use_4bit})...")
+        elif torch.cuda.is_available():
+            device = "cuda"
+            logger.info(f"Loading Phi-3.5 Vision on CUDA (4-bit={use_4bit})...")
+        else:
+            device = "cpu"
+            logger.info(f"Loading Phi-3.5 Vision on CPU (4-bit={use_4bit})...")
 
         model_name = "microsoft/Phi-3.5-vision-instruct"
 
@@ -82,11 +91,10 @@ class Phi3VisionEngine(OCREngine):
             self._model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 trust_remote_code=True,
-                device_map="auto",
                 torch_dtype=torch.float16,
-            )
+            ).to(device)
 
-        logger.success("Phi-3.5 Vision loaded successfully")
+        logger.success(f"Phi-3.5 Vision loaded successfully on {device}")
 
     def extract(
         self, image_path: Path, extract_prices: bool = True, prompt: str = None, **kwargs
