@@ -89,6 +89,21 @@ try:
 except ImportError:
     pass  # Optional dependency
 
+try:
+    from .apple_vision import AppleVisionEngine  # noqa: F401
+except ImportError:
+    pass  # Optional dependency (macOS only)
+
+try:
+    from .tesseract import TesseractEngine  # noqa: F401
+except ImportError:
+    pass  # Optional dependency
+
+try:
+    from .easyocr import EasyOCREngine  # noqa: F401
+except ImportError:
+    pass  # Optional dependency
+
 
 __all__ = [
     "OCREngine",
