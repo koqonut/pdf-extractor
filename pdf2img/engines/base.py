@@ -28,6 +28,7 @@ class OCRResult:
         error: Error message if failed
         metadata: Engine-specific metadata
     """
+
     engine: str
     text: str
     processing_time: float
@@ -143,9 +144,7 @@ def register_engine(engine_class: type[OCREngine]) -> type[OCREngine]:
     engine_name = engine_class.name
 
     if engine_name == "override_me":
-        raise ValueError(
-            f"{engine_class.__name__} must set a unique 'name' class attribute"
-        )
+        raise ValueError(f"{engine_class.__name__} must set a unique 'name' class attribute")
 
     if engine_name in _ENGINE_REGISTRY:
         logger.warning(
@@ -174,9 +173,7 @@ def get_engine(name: str, **config) -> OCREngine:
     """
     if name not in _ENGINE_REGISTRY:
         available = ", ".join(_ENGINE_REGISTRY.keys())
-        raise ValueError(
-            f"Unknown engine: '{name}'. Available engines: {available}"
-        )
+        raise ValueError(f"Unknown engine: '{name}'. Available engines: {available}")
 
     engine_class = _ENGINE_REGISTRY[name]
     return engine_class(**config)

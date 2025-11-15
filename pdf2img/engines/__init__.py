@@ -55,37 +55,37 @@ from .base import (
 # Auto-import all engines (triggers registration via @register_engine decorator)
 # Just add a new import line when you create a new engine!
 try:
-    from .minicpm import MiniCPMEngine
+    from .minicpm import MiniCPMEngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 
 try:
-    from .got_ocr import GOTOCREngine
+    from .got_ocr import GOTOCREngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 
 try:
-    from .phi3 import Phi3VisionEngine
+    from .phi3 import Phi3VisionEngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 
 try:
-    from .surya import SuryaEngine
+    from .surya import SuryaEngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 
 try:
-    from .qwen2vl import Qwen2VLEngine
+    from .qwen2vl import Qwen2VLEngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 
 try:
-    from .paddleocr import PaddleOCREngine
+    from .paddleocr import PaddleOCREngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 
 try:
-    from .claude_api import ClaudeAPIEngine
+    from .claude_api import ClaudeAPIEngine  # noqa: F401
 except ImportError:
     pass  # Optional dependency
 

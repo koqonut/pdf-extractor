@@ -21,7 +21,7 @@ def download_sample_from_url(url: str, output_path: Path):
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'wb') as f:
+    with open(output_path, "wb") as f:
         f.write(response.content)
 
     print(f"✅ Saved to: {output_path}")
@@ -37,14 +37,14 @@ def screenshot_flipp_page(url: str, output_path: Path):
         browser = p.chromium.launch(headless=True)
 
         context = browser.new_context(
-            viewport={'width': 1920, 'height': 1080},
-            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            viewport={"width": 1920, "height": 1080},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         )
 
         page = context.new_page()
 
         try:
-            page.goto(url, wait_until='networkidle', timeout=30000)
+            page.goto(url, wait_until="networkidle", timeout=30000)
 
             # Wait for flyer to load
             page.wait_for_timeout(3000)
@@ -78,9 +78,9 @@ def main():
     data_dir = Path("data/raw/samples")
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    print("="*70)
+    print("=" * 70)
     print("📥 SAMPLE FLYER DOWNLOADER")
-    print("="*70)
+    print("=" * 70)
 
     print("\nOptions:")
     print("1. Download from direct image URL")
@@ -100,7 +100,7 @@ def main():
 
         try:
             download_sample_from_url(url, output_path)
-            print(f"\n✅ Done! Test with:")
+            print("\n✅ Done! Test with:")
             print(f"   python test_vision_api.py --image {output_path}")
         except Exception as e:
             print(f"❌ Error: {e}")
@@ -121,7 +121,7 @@ def main():
 
         try:
             screenshot_flipp_page(url, output_path)
-            print(f"\n✅ Done! Test with:")
+            print("\n✅ Done! Test with:")
             print(f"   python test_vision_api.py --image {output_path}")
         except Exception as e:
             print(f"❌ Error: {e}")

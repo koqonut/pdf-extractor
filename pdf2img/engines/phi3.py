@@ -53,15 +53,12 @@ class Phi3VisionEngine(OCREngine):
 
         logger.info(f"Loading Phi-3.5 Vision (4-bit={self.use_4bit})...")
 
-        from transformers import AutoModelForCausalLM, AutoProcessor
         import torch
+        from transformers import AutoModelForCausalLM, AutoProcessor
 
         model_name = "microsoft/Phi-3.5-vision-instruct"
 
-        self._processor = AutoProcessor.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        self._processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
 
         if self.use_4bit:
             self._model = AutoModelForCausalLM.from_pretrained(
@@ -82,11 +79,7 @@ class Phi3VisionEngine(OCREngine):
         logger.success("Phi-3.5 Vision loaded successfully")
 
     def extract(
-        self,
-        image_path: Path,
-        extract_prices: bool = True,
-        prompt: str = None,
-        **kwargs
+        self, image_path: Path, extract_prices: bool = True, prompt: str = None, **kwargs
     ) -> OCRResult:
         """Extract text from image
 
@@ -120,9 +113,7 @@ class Phi3VisionEngine(OCREngine):
 
             import torch
 
-            inputs = self._processor(prompt, [image], return_tensors="pt").to(
-                self._model.device
-            )
+            inputs = self._processor(prompt, [image], return_tensors="pt").to(self._model.device)
 
             with torch.no_grad():
                 generate_ids = self._model.generate(
@@ -132,13 +123,11 @@ class Phi3VisionEngine(OCREngine):
                 )
 
             # Remove input tokens from output
-            generate_ids = generate_ids[:, inputs["input_ids"].shape[1]:]
+            generate_ids = generate_ids[:, inputs["input_ids"].shape[1] :]
 
             # Decode response
             response = self._processor.batch_decode(
-                generate_ids,
-                skip_special_tokens=True,
-                clean_up_tokenization_spaces=False
+                generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )[0]
 
             processing_time = time.time() - start_time

@@ -171,9 +171,7 @@ def compare(
         console.print("No engines available to compare!", style="bold red")
         raise typer.Exit(1)
 
-    console.print(
-        f"\n[bold]Comparing {len(engines_to_test)} engines on {image.name}[/bold]\n"
-    )
+    console.print(f"\n[bold]Comparing {len(engines_to_test)} engines on {image.name}[/bold]\n")
 
     results = []
 
@@ -224,8 +222,7 @@ def compare(
     if save_outputs:
         successful = sum(1 for r in results if r.success)
         console.print(
-            f"✓ Saved {successful} outputs to output_*_{image.stem}.txt",
-            style="bold green"
+            f"✓ Saved {successful} outputs to output_*_{image.stem}.txt", style="bold green"
         )
 
 
@@ -233,9 +230,7 @@ def compare(
 def batch(
     images: List[Path] = typer.Argument(..., help="Image files to process"),
     engine: str = typer.Option("minicpm", "--engine", "-e", help="Engine to use"),
-    output_dir: Path = typer.Option(
-        Path("output"), "--output", "-o", help="Output directory"
-    ),
+    output_dir: Path = typer.Option(Path("output"), "--output", "-o", help="Output directory"),
 ):
     """Batch process multiple images with one engine"""
 
@@ -246,9 +241,7 @@ def batch(
         console.print("Error: No valid images found!", style="bold red")
         raise typer.Exit(1)
 
-    console.print(
-        f"\n[bold]Batch processing {len(valid_images)} images with {engine}[/bold]\n"
-    )
+    console.print(f"\n[bold]Batch processing {len(valid_images)} images with {engine}[/bold]\n")
 
     # Create output directory
     output_dir.mkdir(exist_ok=True)
@@ -283,9 +276,7 @@ def batch(
     console.print(f"Total images: {len(valid_images)}")
     console.print(f"Successful: {sum(1 for r in results if r.success)}", style="green")
     console.print(f"Failed: {sum(1 for r in results if not r.success)}", style="red")
-    console.print(
-        f"Average time: {sum(r.processing_time for r in results) / len(results):.2f}s"
-    )
+    console.print(f"Average time: {sum(r.processing_time for r in results) / len(results):.2f}s")
     console.print(f"{'='*80}\n")
 
 

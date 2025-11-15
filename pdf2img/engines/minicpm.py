@@ -56,15 +56,12 @@ class MiniCPMEngine(OCREngine):
 
         logger.info(f"Loading MiniCPM-V 2.6 (4-bit={self.use_4bit})...")
 
-        from transformers import AutoModel, AutoTokenizer
         import torch
+        from transformers import AutoModel, AutoTokenizer
 
         model_name = "openbmb/MiniCPM-V-2_6"
 
-        self._tokenizer = AutoTokenizer.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        self._tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
         if self.use_4bit:
             self._model = AutoModel.from_pretrained(
@@ -85,11 +82,7 @@ class MiniCPMEngine(OCREngine):
         logger.success("MiniCPM-V 2.6 loaded successfully")
 
     def extract(
-        self,
-        image_path: Path,
-        extract_json: bool = False,
-        prompt: str = None,
-        **kwargs
+        self, image_path: Path, extract_json: bool = False, prompt: str = None, **kwargs
     ) -> OCRResult:
         """Extract text from image
 
@@ -122,7 +115,9 @@ Return as JSON with this structure:
   ]
 }"""
                 else:
-                    prompt = "Extract all text from this image, especially product names and prices."
+                    prompt = (
+                        "Extract all text from this image, especially product names and prices."
+                    )
 
             # Run OCR
             logger.info(f"Running MiniCPM-V extraction on {image_path.name}...")

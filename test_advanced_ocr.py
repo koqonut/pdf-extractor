@@ -24,7 +24,6 @@ import json
 from pathlib import Path
 from typing import Dict, List
 from dataclasses import dataclass
-import sys
 
 
 @dataclass
@@ -63,12 +62,7 @@ def test_surya(image_path: Path) -> ExtractionResult:
         # Run OCR
         print("  🔍 Running Surya OCR...")
         predictions = run_ocr(
-            [image],
-            [["en"]],
-            det_model,
-            det_processor,
-            rec_model,
-            rec_processor
+            [image], [["en"]], det_model, det_processor, rec_model, rec_processor
         )
 
         end = time.time()
@@ -83,22 +77,20 @@ def test_surya(image_path: Path) -> ExtractionResult:
 
         # Extract prices and items (simple heuristic)
         import re
-        prices = re.findall(r'\$?\d+\.\d{2}|\d+¢', raw_text)
+
+        prices = re.findall(r"\$?\d+\.\d{2}|\d+¢", raw_text)
 
         items = []
         for i, line in enumerate(text_lines):
             if any(price in line for price in prices):
-                items.append({
-                    "text": line,
-                    "line_number": i
-                })
+                items.append({"text": line, "line_number": i})
 
         return ExtractionResult(
             engine="Surya",
             success=True,
             processing_time=round(end - start, 2),
             items_found=items,
-            raw_output=raw_text
+            raw_output=raw_text,
         )
 
     except Exception as e:
@@ -108,7 +100,7 @@ def test_surya(image_path: Path) -> ExtractionResult:
             processing_time=0,
             items_found=[],
             raw_output="",
-            error=str(e)
+            error=str(e),
         )
 
 
@@ -128,7 +120,7 @@ def test_qwen2vl(image_path: Path) -> ExtractionResult:
             "Qwen/Qwen2-VL-2B-Instruct",
             torch_dtype=torch.float16,
             device_map="auto",
-            load_in_4bit=True  # Fits in 8GB RAM
+            load_in_4bit=True,  # Fits in 8GB RAM
         )
         processor = AutoProcessor.from_pretrained("Qwen/Qwen2-VL-2B-Instruct")
 
@@ -157,43 +149,23 @@ Extract ALL visible items. Be thorough."""
         messages = [
             {
                 "role": "user",
-                "content": [
-                    {"type": "image", "image": image},
-                    {"type": "text", "text": prompt}
-                ]
+                "content": [{"type": "image", "image": image}, {"type": "text", "text": prompt}],
             }
         ]
 
         # Process
-        text = processor.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True
-        )
+        text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
-        inputs = processor(
-            text=[text],
-            images=[image],
-            return_tensors="pt",
-            padding=True
-        )
+        inputs = processor(text=[text], images=[image], return_tensors="pt", padding=True)
 
         # Move to same device as model
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
         # Generate
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=2048,
-            temperature=0.1,
-            do_sample=False
-        )
+        outputs = model.generate(**inputs, max_new_tokens=2048, temperature=0.1, do_sample=False)
 
         # Decode
-        result_text = processor.batch_decode(
-            outputs,
-            skip_special_tokens=True
-        )[0]
+        result_text = processor.batch_decode(outputs, skip_special_tokens=True)[0]
 
         end = time.time()
 
@@ -210,7 +182,8 @@ Extract ALL visible items. Be thorough."""
         except json.JSONDecodeError:
             # Fallback: try to find JSON in the text
             import re
-            json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+
+            json_match = re.search(r"\{.*\}", result_text, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group(0))
                 items = data.get("items", [])
@@ -222,7 +195,7 @@ Extract ALL visible items. Be thorough."""
             success=True,
             processing_time=round(end - start, 2),
             items_found=items,
-            raw_output=result_text
+            raw_output=result_text,
         )
 
     except Exception as e:
@@ -232,7 +205,7 @@ Extract ALL visible items. Be thorough."""
             processing_time=0,
             items_found=[],
             raw_output="",
-            error=str(e)
+            error=str(e),
         )
 
 
@@ -248,13 +221,10 @@ def test_florence2(image_path: Path) -> ExtractionResult:
         start = time.time()
 
         model = AutoModelForCausalLM.from_pretrained(
-            "microsoft/Florence-2-large",
-            trust_remote_code=True,
-            torch_dtype=torch.float16
+            "microsoft/Florence-2-large", trust_remote_code=True, torch_dtype=torch.float16
         )
         processor = AutoProcessor.from_pretrained(
-            "microsoft/Florence-2-large",
-            trust_remote_code=True
+            "microsoft/Florence-2-large", trust_remote_code=True
         )
 
         image = Image.open(image_path).convert("RGB")
@@ -267,23 +237,17 @@ def test_florence2(image_path: Path) -> ExtractionResult:
         inputs = processor(text=prompt, images=image, return_tensors="pt")
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
-        generated_ids = model.generate(
-            **inputs,
-            max_new_tokens=1024
-        )
+        generated_ids = model.generate(**inputs, max_new_tokens=1024)
 
-        result = processor.batch_decode(
-            generated_ids,
-            skip_special_tokens=True
-        )[0]
+        result = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
         end = time.time()
 
         # Parse result
         # Florence-2 returns structured output
         items = []
-        if isinstance(result, dict) and 'text' in result:
-            text_list = result.get('text', [])
+        if isinstance(result, dict) and "text" in result:
+            text_list = result.get("text", [])
             for text in text_list:
                 items.append({"text": text})
 
@@ -292,7 +256,7 @@ def test_florence2(image_path: Path) -> ExtractionResult:
             success=True,
             processing_time=round(end - start, 2),
             items_found=items,
-            raw_output=str(result)
+            raw_output=str(result),
         )
 
     except Exception as e:
@@ -302,16 +266,16 @@ def test_florence2(image_path: Path) -> ExtractionResult:
             processing_time=0,
             items_found=[],
             raw_output="",
-            error=str(e)
+            error=str(e),
         )
 
 
 def print_results(results: List[ExtractionResult]):
     """Print comparison results."""
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(" " * 25 + "📊 ADVANCED OCR RESULTS")
-    print("="*80)
+    print("=" * 80)
 
     # Table
     print(f"\n{'Engine':<20} {'Time':<10} {'Items':<10} {'Status'}")
@@ -321,15 +285,17 @@ def print_results(results: List[ExtractionResult]):
         status = "✅ OK" if result.success else f"❌ {result.error[:20]}"
         items_count = len(result.items_found) if result.success else "N/A"
 
-        print(f"{result.engine:<20} "
-              f"{result.processing_time:>6.2f}s   "
-              f"{str(items_count):>5}      "
-              f"{status}")
+        print(
+            f"{result.engine:<20} "
+            f"{result.processing_time:>6.2f}s   "
+            f"{str(items_count):>5}      "
+            f"{status}"
+        )
 
     # Detailed results
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(" " * 25 + "📦 DETAILED RESULTS")
-    print("="*80)
+    print("=" * 80)
 
     for result in results:
         if not result.success:
@@ -345,10 +311,10 @@ def print_results(results: List[ExtractionResult]):
         print(f"📦 Items Found: {len(result.items_found)}")
 
         if result.items_found:
-            print(f"\n🛒 Sample Items (first 10):")
+            print("\n🛒 Sample Items (first 10):")
             for i, item in enumerate(result.items_found[:10], 1):
                 if isinstance(item, dict):
-                    if 'name' in item and 'price' in item:
+                    if "name" in item and "price" in item:
                         print(f"   {i}. {item['name']} → ${item['price']}")
                     else:
                         print(f"   {i}. {item.get('text', str(item))[:70]}")
@@ -365,13 +331,13 @@ def main():
     parser.add_argument(
         "--engine",
         default="surya",
-        choices=['surya', 'qwen2vl', 'florence', 'all'],
-        help="Engine to test (default: surya)"
+        choices=["surya", "qwen2vl", "florence", "all"],
+        help="Engine to test (default: surya)",
     )
     parser.add_argument(
         "--compare-traditional",
-        action='store_true',
-        help="Also test with PaddleOCR for comparison"
+        action="store_true",
+        help="Also test with PaddleOCR for comparison",
     )
 
     args = parser.parse_args()
@@ -380,23 +346,23 @@ def main():
         print(f"❌ Image not found: {args.image}")
         return
 
-    print("="*80)
+    print("=" * 80)
     print(" " * 20 + "🧪 ADVANCED OCR TESTING")
-    print("="*80)
+    print("=" * 80)
     print(f"\n📸 Image: {args.image}")
 
     results = []
 
     # Test selected engines
-    if args.engine in ['surya', 'all']:
+    if args.engine in ["surya", "all"]:
         print("\n🔍 Testing Surya...")
         results.append(test_surya(args.image))
 
-    if args.engine in ['qwen2vl', 'all']:
+    if args.engine in ["qwen2vl", "all"]:
         print("\n🔍 Testing Qwen2-VL...")
         results.append(test_qwen2vl(args.image))
 
-    if args.engine in ['florence', 'all']:
+    if args.engine in ["florence", "all"]:
         print("\n🔍 Testing Florence-2...")
         results.append(test_florence2(args.image))
 
@@ -405,15 +371,18 @@ def main():
         print("\n🔍 Testing PaddleOCR (for comparison)...")
         try:
             from test_local_ocr import test_paddleocr
+
             paddle_result = test_paddleocr(args.image)
 
-            results.append(ExtractionResult(
-                engine="PaddleOCR (baseline)",
-                success=paddle_result.success,
-                processing_time=paddle_result.processing_time,
-                items_found=paddle_result.items_found,
-                raw_output=paddle_result.raw_text
-            ))
+            results.append(
+                ExtractionResult(
+                    engine="PaddleOCR (baseline)",
+                    success=paddle_result.success,
+                    processing_time=paddle_result.processing_time,
+                    items_found=paddle_result.items_found,
+                    raw_output=paddle_result.raw_text,
+                )
+            )
         except ImportError:
             print("   ⚠️  PaddleOCR not available")
 
@@ -421,9 +390,9 @@ def main():
     print_results(results)
 
     # Recommendations
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(" " * 25 + "💡 RECOMMENDATIONS")
-    print("="*80)
+    print("=" * 80)
 
     successful = [r for r in results if r.success]
     if successful:
@@ -433,25 +402,25 @@ def main():
         print(f"\n⚡ Fastest: {fastest.engine} ({fastest.processing_time}s)")
         print(f"🎯 Most Items: {most_items.engine} ({len(most_items.items_found)} items)")
 
-        print(f"\n💰 Cost Comparison:")
-        print(f"   - All local engines tested: $0 (FREE)")
-        print(f"   - Claude API (not tested): ~$0.024 per image")
+        print("\n💰 Cost Comparison:")
+        print("   - All local engines tested: $0 (FREE)")
+        print("   - Claude API (not tested): ~$0.024 per image")
 
-        print(f"\n🎯 For Your Use Case:")
+        print("\n🎯 For Your Use Case:")
         if any(r.engine == "Qwen2-VL-2B" and r.success for r in results):
-            print(f"   ⭐ Use Qwen2-VL-2B for:")
-            print(f"      - Best accuracy (92-95%)")
-            print(f"      - Structured extraction (direct JSON)")
-            print(f"      - Understanding item-price relationships")
-            print(f"      - $0 cost (runs locally)")
+            print("   ⭐ Use Qwen2-VL-2B for:")
+            print("      - Best accuracy (92-95%)")
+            print("      - Structured extraction (direct JSON)")
+            print("      - Understanding item-price relationships")
+            print("      - $0 cost (runs locally)")
 
         if any(r.engine == "Surya" and r.success for r in results):
-            print(f"   ⭐ Use Surya for:")
-            print(f"      - Fast processing (2-4s)")
-            print(f"      - Good accuracy (90-93%)")
-            print(f"      - Lower memory usage")
+            print("   ⭐ Use Surya for:")
+            print("      - Fast processing (2-4s)")
+            print("      - Good accuracy (90-93%)")
+            print("      - Lower memory usage")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 if __name__ == "__main__":

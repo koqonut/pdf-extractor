@@ -18,7 +18,7 @@ import base64
 import json
 import time
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 import argparse
 import sys
 
@@ -32,21 +32,19 @@ def load_image_base64(image_path: Path) -> tuple[str, str]:
     # Determine media type
     suffix = image_path.suffix.lower()
     media_type_map = {
-        '.png': 'image/png',
-        '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg',
-        '.webp': 'image/webp',
-        '.gif': 'image/gif'
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
     }
-    media_type = media_type_map.get(suffix, 'image/jpeg')
+    media_type = media_type_map.get(suffix, "image/jpeg")
 
     return image_data, media_type
 
 
 def extract_with_claude_vision(
-    image_path: Path,
-    api_key: str = None,
-    model: str = "claude-3-5-sonnet-20241022"
+    image_path: Path, api_key: str = None, model: str = "claude-3-5-sonnet-20241022"
 ) -> Dict:
     """
     Extract items and prices from flyer using Claude Vision API.
@@ -114,23 +112,22 @@ Rules:
             model=model,
             max_tokens=4096,
             temperature=0,  # Deterministic for data extraction
-            messages=[{
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": media_type,
-                            "data": image_data
-                        }
-                    },
-                    {
-                        "type": "text",
-                        "text": prompt
-                    }
-                ]
-            }]
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": media_type,
+                                "data": image_data,
+                            },
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ],
         )
 
         end_time = time.time()
@@ -143,9 +140,9 @@ Rules:
         # Claude might wrap in markdown code blocks, so clean it
         if response_text.strip().startswith("```"):
             # Remove markdown code blocks
-            lines = response_text.strip().split('\n')
-            response_text = '\n'.join(lines[1:-1]) if len(lines) > 2 else response_text
-            if response_text.startswith('json'):
+            lines = response_text.strip().split("\n")
+            response_text = "\n".join(lines[1:-1]) if len(lines) > 2 else response_text
+            if response_text.startswith("json"):
                 response_text = response_text[4:]
 
         extracted_data = json.loads(response_text.strip())
@@ -174,19 +171,15 @@ Rules:
                 "total_tokens": input_tokens + output_tokens,
                 "estimated_cost_usd": round(total_cost, 4),
                 "input_cost_usd": round(input_cost, 4),
-                "output_cost_usd": round(output_cost, 4)
+                "output_cost_usd": round(output_cost, 4),
             },
-            "raw_response": response_text
+            "raw_response": response_text,
         }
 
         return result
 
     except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "error_type": type(e).__name__
-        }
+        return {"success": False, "error": str(e), "error_type": type(e).__name__}
 
 
 def print_results(result: Dict):
@@ -199,9 +192,9 @@ def print_results(result: Dict):
         return
 
     print("\n✅ Extraction successful!")
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("📊 PERFORMANCE METRICS")
-    print("="*70)
+    print("=" * 70)
 
     perf = result["performance"]
     print(f"⏱️  Processing Time: {perf['processing_time_seconds']}s")
@@ -210,39 +203,39 @@ def print_results(result: Dict):
     print(f"   - Output: {perf['output_tokens']:,} tokens (${perf['output_cost_usd']:.4f})")
     print(f"💰 Cost: ${perf['estimated_cost_usd']:.4f} per page")
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("📦 EXTRACTED DATA")
-    print("="*70)
+    print("=" * 70)
 
     data = result["extracted_data"]
 
     if "metadata" in data:
         meta = data["metadata"]
-        print(f"\n📋 Metadata:")
+        print("\n📋 Metadata:")
         print(f"   - Total items found: {meta.get('total_items_found', 'N/A')}")
         print(f"   - Page quality: {meta.get('page_quality', 'N/A')}")
-        if meta.get('extraction_notes'):
+        if meta.get("extraction_notes"):
             print(f"   - Notes: {meta['extraction_notes']}")
 
     if "items" in data:
         items = data["items"]
         print(f"\n🛒 Items Found: {len(items)}")
-        print("\n" + "-"*70)
+        print("\n" + "-" * 70)
 
         for i, item in enumerate(items, 1):
             print(f"\n{i}. {item.get('name', 'Unknown')}")
             print(f"   💵 Price: ${item.get('price', 'N/A')}")
 
-            if item.get('unit'):
+            if item.get("unit"):
                 print(f"   📦 Unit: {item['unit']}")
 
-            if item.get('original_price'):
+            if item.get("original_price"):
                 print(f"   🏷️  Original: ${item['original_price']}")
 
-            if item.get('promotion'):
+            if item.get("promotion"):
                 print(f"   🎉 Promo: {item['promotion']}")
 
-            confidence = item.get('confidence', 0)
+            confidence = item.get("confidence", 0)
             confidence_emoji = "🟢" if confidence > 0.9 else "🟡" if confidence > 0.7 else "🔴"
             print(f"   {confidence_emoji} Confidence: {confidence:.0%}")
 
@@ -251,11 +244,11 @@ def print_results(result: Dict):
                 break
 
     # Cost projections
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("💰 COST PROJECTIONS")
-    print("="*70)
+    print("=" * 70)
 
-    cost_per_page = perf['estimated_cost_usd']
+    cost_per_page = perf["estimated_cost_usd"]
 
     print(f"\nAssuming {cost_per_page:.4f} per page:")
     print(f"   - 10-page flyer: ${cost_per_page * 10:.3f}")
@@ -263,19 +256,19 @@ def print_results(result: Dict):
     print(f"   - 1,000 flyers: ${cost_per_page * 12000:.2f}")
 
     # Quality assessment
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🎯 QUALITY ASSESSMENT")
-    print("="*70)
+    print("=" * 70)
 
     if "items" in data and len(data["items"]) > 0:
-        confidences = [item.get('confidence', 0) for item in data["items"]]
+        confidences = [item.get("confidence", 0) for item in data["items"]]
         avg_confidence = sum(confidences) / len(confidences) if confidences else 0
 
         high_conf = sum(1 for c in confidences if c > 0.9)
         med_conf = sum(1 for c in confidences if 0.7 < c <= 0.9)
         low_conf = sum(1 for c in confidences if c <= 0.7)
 
-        print(f"\n📊 Confidence Distribution:")
+        print("\n📊 Confidence Distribution:")
         print(f"   🟢 High (>90%): {high_conf} items ({high_conf/len(confidences)*100:.0f}%)")
         print(f"   🟡 Medium (70-90%): {med_conf} items ({med_conf/len(confidences)*100:.0f}%)")
         print(f"   🔴 Low (<70%): {low_conf} items ({low_conf/len(confidences)*100:.0f}%)")
@@ -285,7 +278,7 @@ def print_results(result: Dict):
 def save_results(result: Dict, output_path: Path):
     """Save results to JSON file."""
 
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
 
     print(f"\n💾 Results saved to: {output_path}")
@@ -296,27 +289,18 @@ def main():
         description="Test Claude 3.5 Sonnet Vision API for flyer extraction"
     )
     parser.add_argument(
-        "--image",
-        type=Path,
-        required=True,
-        help="Path to flyer image (PNG, JPG, JPEG)"
+        "--image", type=Path, required=True, help="Path to flyer image (PNG, JPG, JPEG)"
     )
     parser.add_argument(
-        "--api-key",
-        type=str,
-        help="Anthropic API key (or set ANTHROPIC_API_KEY env var)"
+        "--api-key", type=str, help="Anthropic API key (or set ANTHROPIC_API_KEY env var)"
     )
     parser.add_argument(
         "--model",
         type=str,
         default="claude-3-5-sonnet-20241022",
-        help="Claude model to use (default: claude-3-5-sonnet-20241022)"
+        help="Claude model to use (default: claude-3-5-sonnet-20241022)",
     )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        help="Save results to JSON file"
-    )
+    parser.add_argument("--output", type=Path, help="Save results to JSON file")
 
     args = parser.parse_args()
 
@@ -326,15 +310,11 @@ def main():
         sys.exit(1)
 
     # Run extraction
-    print("="*70)
+    print("=" * 70)
     print("🧪 CLAUDE VISION API TEST - FLYER EXTRACTION")
-    print("="*70)
+    print("=" * 70)
 
-    result = extract_with_claude_vision(
-        args.image,
-        api_key=args.api_key,
-        model=args.model
-    )
+    result = extract_with_claude_vision(args.image, api_key=args.api_key, model=args.model)
 
     # Print results
     print_results(result)

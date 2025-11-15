@@ -45,10 +45,7 @@ class GOTOCREngine(OCREngine):
 
         model_name = "stepfun-ai/GOT-OCR2_0"
 
-        self._tokenizer = AutoTokenizer.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        self._tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
         self._model = AutoModel.from_pretrained(
             model_name,
@@ -60,12 +57,7 @@ class GOTOCREngine(OCREngine):
 
         logger.success("GOT-OCR 2.0 loaded successfully")
 
-    def extract(
-        self,
-        image_path: Path,
-        structured: bool = False,
-        **kwargs
-    ) -> OCRResult:
+    def extract(self, image_path: Path, structured: bool = False, **kwargs) -> OCRResult:
         """Extract text from image
 
         Args:
@@ -98,8 +90,7 @@ class GOTOCREngine(OCREngine):
             processing_time = time.time() - start_time
 
             logger.success(
-                f"GOT-OCR extraction completed in {processing_time:.2f}s "
-                f"({len(text)} chars)"
+                f"GOT-OCR extraction completed in {processing_time:.2f}s " f"({len(text)} chars)"
             )
 
             return OCRResult(

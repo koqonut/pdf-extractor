@@ -4,9 +4,6 @@ Tests for pdf2img.engines.base module
 Tests the core plugin system: OCREngine, OCRResult, and registry functions.
 """
 
-import time
-from pathlib import Path
-
 import pytest
 
 from pdf2img.engines import (
@@ -140,9 +137,8 @@ class TestEngineRegistry:
         """Test getting engine with custom configuration"""
         engine = get_engine("mock", mock_text="Custom config text")
 
-        result = engine.extract(Path("test.png"))
-        # Note: This will fail extraction but we're testing config passing
-        # In real test, we'd need a valid image
+        # Verify the engine was configured with custom text
+        assert engine.mock_text == "Custom config text"
 
     def test_get_engine_unknown_raises_error(self):
         """Test that getting unknown engine raises ValueError"""

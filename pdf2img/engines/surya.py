@@ -41,10 +41,10 @@ class SuryaEngine(OCREngine):
 
         logger.info("Loading Surya OCR...")
 
-        from surya.ocr import run_ocr
         from surya.model.detection import segformer
         from surya.model.recognition.model import load_model as load_rec_model
         from surya.model.recognition.processor import load_processor
+        from surya.ocr import run_ocr
 
         # Load models
         self._det_model = segformer.load_model()
@@ -80,11 +80,7 @@ class SuryaEngine(OCREngine):
 
             # Surya expects a list of images
             predictions = self._run_ocr(
-                [image],
-                [["en"]],  # Language
-                self._det_model,
-                self._rec_model,
-                self._processor
+                [image], [["en"]], self._det_model, self._rec_model, self._processor  # Language
             )
 
             # Extract text from predictions
@@ -97,8 +93,7 @@ class SuryaEngine(OCREngine):
             processing_time = time.time() - start_time
 
             logger.success(
-                f"Surya OCR extraction completed in {processing_time:.2f}s "
-                f"({len(text)} chars)"
+                f"Surya OCR extraction completed in {processing_time:.2f}s " f"({len(text)} chars)"
             )
 
             return OCRResult(

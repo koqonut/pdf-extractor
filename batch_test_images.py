@@ -29,8 +29,11 @@ from datetime import datetime
 # Import test functions
 try:
     from test_local_ocr import (
-        test_tesseract, test_easyocr, test_paddleocr,
-        test_apple_vision, OCRResult
+        test_tesseract,
+        test_easyocr,
+        test_paddleocr,
+        test_apple_vision,
+        OCRResult,
     )
 except ImportError:
     print("❌ Error: test_local_ocr.py not found")
@@ -40,7 +43,7 @@ except ImportError:
 def find_images(directory: Path) -> List[Path]:
     """Find all image files in directory."""
 
-    extensions = ['*.png', '*.jpg', '*.jpeg', '*.webp', '*.PNG', '*.JPG', '*.JPEG']
+    extensions = ["*.png", "*.jpg", "*.jpeg", "*.webp", "*.PNG", "*.JPG", "*.JPEG"]
     images = []
 
     for ext in extensions:
@@ -53,10 +56,10 @@ def test_image_with_engine(image_path: Path, engine: str) -> OCRResult:
     """Test single image with specific engine."""
 
     engine_map = {
-        'tesseract': test_tesseract,
-        'paddleocr': test_paddleocr,
-        'easyocr': test_easyocr,
-        'apple': test_apple_vision,
+        "tesseract": test_tesseract,
+        "paddleocr": test_paddleocr,
+        "easyocr": test_easyocr,
+        "apple": test_apple_vision,
     }
 
     test_func = engine_map.get(engine.lower())
@@ -72,12 +75,11 @@ def test_image_with_api(image_path: Path, api_key: str = None) -> Dict:
     try:
         import anthropic
         import base64
-        import re
 
-        with open(image_path, 'rb') as f:
+        with open(image_path, "rb") as f:
             image_data = base64.b64encode(f.read()).decode()
 
-        media_type = 'image/png' if image_path.suffix.lower() == '.png' else 'image/jpeg'
+        media_type = "image/png" if image_path.suffix.lower() == ".png" else "image/jpeg"
 
         client = anthropic.Anthropic(api_key=api_key) if api_key else anthropic.Anthropic()
 
@@ -90,23 +92,22 @@ def test_image_with_api(image_path: Path, api_key: str = None) -> Dict:
             model="claude-3-5-sonnet-20241022",
             max_tokens=4096,
             temperature=0,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": media_type,
-                            "data": image_data
-                        }
-                    },
-                    {
-                        "type": "text",
-                        "text": prompt
-                    }
-                ]
-            }]
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": media_type,
+                                "data": image_data,
+                            },
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ],
         )
 
         end = time.time()
@@ -115,15 +116,15 @@ def test_image_with_api(image_path: Path, api_key: str = None) -> Dict:
 
         # Clean markdown
         if response_text.strip().startswith("```"):
-            lines = response_text.strip().split('\n')
-            response_text = '\n'.join(lines[1:-1]) if len(lines) > 2 else response_text
-            if response_text.startswith('json'):
+            lines = response_text.strip().split("\n")
+            response_text = "\n".join(lines[1:-1]) if len(lines) > 2 else response_text
+            if response_text.startswith("json"):
                 response_text = response_text[4:]
 
         try:
             data = json.loads(response_text.strip())
-            items = data.get('items', [])
-        except:
+            items = data.get("items", [])
+        except Exception:
             items = []
 
         # Calculate cost
@@ -132,35 +133,27 @@ def test_image_with_api(image_path: Path, api_key: str = None) -> Dict:
         cost = (input_tokens / 1_000_000) * 3.00 + (output_tokens / 1_000_000) * 15.00
 
         return {
-            'success': True,
-            'engine': 'Claude API',
-            'processing_time': round(end - start, 2),
-            'items': items,
-            'cost': round(cost, 4)
+            "success": True,
+            "engine": "Claude API",
+            "processing_time": round(end - start, 2),
+            "items": items,
+            "cost": round(cost, 4),
         }
 
     except Exception as e:
-        return {
-            'success': False,
-            'engine': 'Claude API',
-            'error': str(e),
-            'items': []
-        }
+        return {"success": False, "engine": "Claude API", "error": str(e), "items": []}
 
 
 def batch_test(
-    images: List[Path],
-    engine: str = 'paddleocr',
-    compare_api: bool = False,
-    api_key: str = None
+    images: List[Path], engine: str = "paddleocr", compare_api: bool = False, api_key: str = None
 ) -> Dict:
     """Test multiple images and generate summary."""
 
     results = {
-        'timestamp': datetime.now().isoformat(),
-        'total_images': len(images),
-        'engine': engine,
-        'results': []
+        "timestamp": datetime.now().isoformat(),
+        "total_images": len(images),
+        "engine": engine,
+        "results": [],
     }
 
     print(f"\n🧪 Testing {len(images)} images with {engine}...")
@@ -173,19 +166,21 @@ def batch_test(
         local_result = test_image_with_engine(image_path, engine)
 
         image_result = {
-            'image': str(image_path),
-            'filename': image_path.name,
-            'local': {
-                'success': local_result.success,
-                'time': local_result.processing_time,
-                'items_found': len(local_result.items_found),
-                'prices_found': len(local_result.prices_found),
-            }
+            "image": str(image_path),
+            "filename": image_path.name,
+            "local": {
+                "success": local_result.success,
+                "time": local_result.processing_time,
+                "items_found": len(local_result.items_found),
+                "prices_found": len(local_result.prices_found),
+            },
         }
 
         if local_result.success:
-            print(f"   ✅ {engine}: {len(local_result.items_found)} items, "
-                  f"{len(local_result.prices_found)} prices ({local_result.processing_time}s)")
+            print(
+                f"   ✅ {engine}: {len(local_result.items_found)} items, "
+                f"{len(local_result.prices_found)} prices ({local_result.processing_time}s)"
+            )
         else:
             print(f"   ❌ {engine} failed: {local_result.error}")
 
@@ -193,18 +188,20 @@ def batch_test(
         if compare_api:
             api_result = test_image_with_api(image_path, api_key)
 
-            image_result['api'] = {
-                'success': api_result['success'],
-                'time': api_result.get('processing_time', 0),
-                'items_found': len(api_result.get('items', [])),
-                'cost': api_result.get('cost', 0)
+            image_result["api"] = {
+                "success": api_result["success"],
+                "time": api_result.get("processing_time", 0),
+                "items_found": len(api_result.get("items", [])),
+                "cost": api_result.get("cost", 0),
             }
 
-            if api_result['success']:
-                print(f"   ✅ Claude API: {len(api_result['items'])} items "
-                      f"(${api_result['cost']:.4f}, {api_result['processing_time']}s)")
+            if api_result["success"]:
+                print(
+                    f"   ✅ Claude API: {len(api_result['items'])} items "
+                    f"(${api_result['cost']:.4f}, {api_result['processing_time']}s)"
+                )
 
-        results['results'].append(image_result)
+        results["results"].append(image_result)
 
     return results
 
@@ -216,16 +213,16 @@ def print_summary(results: Dict):
     print(" " * 30 + "📊 SUMMARY REPORT")
     print("=" * 80)
 
-    total = results['total_images']
-    engine = results['engine']
+    total = results["total_images"]
+    engine = results["engine"]
 
     # Local stats
-    successful_local = [r for r in results['results'] if r['local']['success']]
+    successful_local = [r for r in results["results"] if r["local"]["success"]]
 
     if successful_local:
-        total_items = sum(r['local']['items_found'] for r in successful_local)
-        total_prices = sum(r['local']['prices_found'] for r in successful_local)
-        avg_time = sum(r['local']['time'] for r in successful_local) / len(successful_local)
+        total_items = sum(r["local"]["items_found"] for r in successful_local)
+        total_prices = sum(r["local"]["prices_found"] for r in successful_local)
+        avg_time = sum(r["local"]["time"] for r in successful_local) / len(successful_local)
         avg_items = total_items / len(successful_local)
         avg_prices = total_prices / len(successful_local)
 
@@ -236,20 +233,20 @@ def print_summary(results: Dict):
         print(f"   - Average per image: {avg_items:.1f} items, {avg_prices:.1f} prices")
         print(f"   - Average time: {avg_time:.2f}s per image")
         print(f"   - Total time: {sum(r['local']['time'] for r in successful_local):.2f}s")
-        print(f"   - Cost: $0.00 (free!)")
+        print("   - Cost: $0.00 (free!)")
 
     # API stats if available
-    api_results = [r for r in results['results'] if 'api' in r]
+    api_results = [r for r in results["results"] if "api" in r]
     if api_results:
-        successful_api = [r for r in api_results if r['api']['success']]
+        successful_api = [r for r in api_results if r["api"]["success"]]
 
         if successful_api:
-            total_items_api = sum(r['api']['items_found'] for r in successful_api)
-            total_cost = sum(r['api']['cost'] for r in successful_api)
-            avg_time_api = sum(r['api']['time'] for r in successful_api) / len(successful_api)
+            total_items_api = sum(r["api"]["items_found"] for r in successful_api)
+            total_cost = sum(r["api"]["cost"] for r in successful_api)
+            avg_time_api = sum(r["api"]["time"] for r in successful_api) / len(successful_api)
             avg_items_api = total_items_api / len(successful_api)
 
-            print(f"\n☁️  CLAUDE API Results:")
+            print("\n☁️  CLAUDE API Results:")
             print(f"   - Successful: {len(successful_api)}/{total} images")
             print(f"   - Total items found: {total_items_api}")
             print(f"   - Average per image: {avg_items_api:.1f} items")
@@ -261,7 +258,7 @@ def print_summary(results: Dict):
             if successful_local:
                 accuracy_ratio = (avg_items / avg_items_api * 100) if avg_items_api > 0 else 0
 
-                print(f"\n📈 Comparison:")
+                print("\n📈 Comparison:")
                 print(f"   - {engine} found {accuracy_ratio:.1f}% of items vs Claude API")
                 print(f"   - Cost savings: ${total_cost:.2f} (100% saved using local)")
 
@@ -269,32 +266,32 @@ def print_summary(results: Dict):
                     print(f"\n✅ Recommendation: Use {engine} (local)")
                     print(f"   Reason: Achieves {accuracy_ratio:.0f}% of API accuracy at $0 cost")
                 elif accuracy_ratio >= 75:
-                    print(f"\n⚠️  Recommendation: Hybrid approach")
+                    print("\n⚠️  Recommendation: Hybrid approach")
                     print(f"   - Use {engine} for initial extraction")
-                    print(f"   - Use API for low-confidence cases")
-                    print(f"   - Estimated cost: ~30-40% of full API cost")
+                    print("   - Use API for low-confidence cases")
+                    print("   - Estimated cost: ~30-40% of full API cost")
                 else:
-                    print(f"\n❌ Recommendation: Use Claude API")
+                    print("\n❌ Recommendation: Use Claude API")
                     print(f"   Reason: Local only achieves {accuracy_ratio:.0f}% accuracy")
 
     # Per-image breakdown
-    print(f"\n" + "=" * 80)
+    print("\n" + "=" * 80)
     print(" " * 30 + "📋 PER-IMAGE RESULTS")
     print("=" * 80)
 
     print(f"\n{'Image':<40} {'Local Items':<15} {'API Items':<15} {'Cost'}")
     print("-" * 80)
 
-    for r in results['results']:
-        filename = r['filename'][:38]
-        local_items = r['local']['items_found'] if r['local']['success'] else 'FAILED'
+    for r in results["results"]:
+        filename = r["filename"][:38]
+        local_items = r["local"]["items_found"] if r["local"]["success"] else "FAILED"
 
-        if 'api' in r and r['api']['success']:
-            api_items = r['api']['items_found']
+        if "api" in r and r["api"]["success"]:
+            api_items = r["api"]["items_found"]
             cost = f"${r['api']['cost']:.4f}"
         else:
-            api_items = 'N/A'
-            cost = 'N/A'
+            api_items = "N/A"
+            cost = "N/A"
 
         print(f"{filename:<40} {str(local_items):<15} {str(api_items):<15} {cost}")
 
@@ -302,7 +299,7 @@ def print_summary(results: Dict):
 def save_report(results: Dict, output_path: Path):
     """Save detailed results to JSON."""
 
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
 
     print(f"\n💾 Detailed results saved to: {output_path}")
@@ -314,21 +311,21 @@ def main():
     # Input options
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument("--dir", type=Path, help="Directory containing images")
-    input_group.add_argument("--images", nargs='+', type=Path, help="Specific image files")
+    input_group.add_argument("--images", nargs="+", type=Path, help="Specific image files")
 
     # Engine options
     parser.add_argument(
         "--engine",
         default="paddleocr",
-        choices=['tesseract', 'paddleocr', 'easyocr', 'apple'],
-        help="OCR engine to test (default: paddleocr)"
+        choices=["tesseract", "paddleocr", "easyocr", "apple"],
+        help="OCR engine to test (default: paddleocr)",
     )
 
     # API comparison
     parser.add_argument(
         "--compare-api",
-        action='store_true',
-        help="Also test with Claude Vision API for comparison"
+        action="store_true",
+        help="Also test with Claude Vision API for comparison",
     )
     parser.add_argument("--api-key", type=str, help="Anthropic API key")
 
@@ -337,7 +334,7 @@ def main():
         "--output",
         type=Path,
         default=Path("data/processed/batch_test_results.json"),
-        help="Output path for detailed results"
+        help="Output path for detailed results",
     )
 
     args = parser.parse_args()
@@ -374,10 +371,7 @@ def main():
 
     # Run tests
     results = batch_test(
-        images,
-        engine=args.engine,
-        compare_api=args.compare_api,
-        api_key=args.api_key
+        images, engine=args.engine, compare_api=args.compare_api, api_key=args.api_key
     )
 
     # Print summary

@@ -74,10 +74,7 @@ def test_got_ocr(image_path: Path, use_structured: bool = False) -> ExtractionRe
         logger.info("Loading GOT-OCR 2.0 model (580M params)...")
         model_name = "stepfun-ai/GOT-OCR2_0"
 
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
         model = AutoModel.from_pretrained(
             model_name,
             trust_remote_code=True,
@@ -150,15 +147,10 @@ def test_minicpm(
         import torch
 
         # Load model with optional 4-bit quantization
-        logger.info(
-            f"Loading MiniCPM-V 2.6 (8B params, 4-bit={use_4bit})..."
-        )
+        logger.info(f"Loading MiniCPM-V 2.6 (8B params, 4-bit={use_4bit})...")
         model_name = "openbmb/MiniCPM-V-2_6"
 
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
         if use_4bit:
             # 4-bit quantization for M2 Air (uses ~4-5GB RAM instead of ~16GB)
@@ -261,10 +253,7 @@ def test_phi3_vision(
         logger.info(f"Loading Phi-3.5 Vision (4.2B params, 4-bit={use_4bit})...")
         model_name = "microsoft/Phi-3.5-vision-instruct"
 
-        processor = AutoProcessor.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
 
         if use_4bit:
             # 4-bit quantization for M2 Air
@@ -312,9 +301,7 @@ def test_phi3_vision(
 
         # Decode response
         response = processor.batch_decode(
-            generate_ids,
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False
+            generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )[0]
 
         processing_time = time.time() - start_time
@@ -397,9 +384,7 @@ def test_paligemma(
         prompt = "extract text from image"
 
         # Process inputs
-        inputs = processor(text=prompt, images=image, return_tensors="pt").to(
-            model.device
-        )
+        inputs = processor(text=prompt, images=image, return_tensors="pt").to(model.device)
 
         # Generate response
         logger.info("Running PaliGemma 2 extraction...")
@@ -498,9 +483,7 @@ def compare_all_engines(image_path: Path) -> List[ExtractionResult]:
     print("\n" + "=" * 100)
     print("COMPARISON SUMMARY - 2025 OCR Engines")
     print("=" * 100)
-    print(
-        f"{'Engine':<25} {'Model Size':<12} {'Time (s)':<10} {'RAM (GB)':<10} {'Status':<10}"
-    )
+    print(f"{'Engine':<25} {'Model Size':<12} {'Time (s)':<10} {'RAM (GB)':<10} {'Status':<10}")
     print("-" * 100)
 
     for r in results:
@@ -535,12 +518,8 @@ def test(
     use_4bit: bool = typer.Option(
         True, "--4bit/--no-4bit", help="Use 4-bit quantization (M2 recommended)"
     ),
-    save_output: bool = typer.Option(
-        False, "--save/--no-save", help="Save output to file"
-    ),
-    compare_all: bool = typer.Option(
-        False, "--compare-all", help="Test all engines and compare"
-    ),
+    save_output: bool = typer.Option(False, "--save/--no-save", help="Save output to file"),
+    compare_all: bool = typer.Option(False, "--compare-all", help="Test all engines and compare"),
 ):
     """Test 2025 modern OCR engines on an image"""
 
@@ -566,9 +545,7 @@ def test(
     elif engine == "paligemma":
         result = test_paligemma(image, model_size=model_size)
     else:
-        logger.error(
-            f"Unknown engine: {engine}. Use: got, minicpm, phi3, or paligemma"
-        )
+        logger.error(f"Unknown engine: {engine}. Use: got, minicpm, phi3, or paligemma")
         raise typer.Exit(1)
 
     print_result(result, save_output)
@@ -577,12 +554,8 @@ def test(
 @app.command()
 def batch(
     images: List[Path] = typer.Argument(..., help="Image files to process"),
-    engine: str = typer.Option(
-        "minicpm", "--engine", "-e", help="Engine to use"
-    ),
-    output_dir: Path = typer.Option(
-        Path("output"), "--output", "-o", help="Output directory"
-    ),
+    engine: str = typer.Option("minicpm", "--engine", "-e", help="Engine to use"),
+    output_dir: Path = typer.Option(Path("output"), "--output", "-o", help="Output directory"),
 ):
     """Batch process multiple images"""
 
@@ -626,9 +599,7 @@ def batch(
     logger.info(f"Total images: {len(images)}")
     logger.info(f"Successful: {sum(1 for r in results if r.success)}")
     logger.info(f"Failed: {sum(1 for r in results if not r.success)}")
-    logger.info(
-        f"Average time: {sum(r.processing_time for r in results) / len(results):.2f}s"
-    )
+    logger.info(f"Average time: {sum(r.processing_time for r in results) / len(results):.2f}s")
     logger.info("=" * 80)
 
 

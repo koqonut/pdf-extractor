@@ -8,8 +8,7 @@ installed and is marked as slow.
 
 import pytest
 
-from pdf2img.engines import list_engines, get_engine, get_engine_info
-
+from pdf2img.engines import get_engine, get_engine_info, list_engines
 
 # List of expected engine names (update as new engines are added)
 EXPECTED_ENGINES = ["mock"]  # Always have mock from conftest

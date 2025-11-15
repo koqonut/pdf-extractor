@@ -4,7 +4,6 @@ Pytest configuration and fixtures for OCR engine tests
 
 import time
 from pathlib import Path
-from typing import Optional
 
 import pytest
 from PIL import Image
@@ -94,6 +93,7 @@ def failing_mock_engine():
 @pytest.fixture
 def custom_mock_engine():
     """Factory fixture for creating custom mock engines"""
+
     def _create_mock(mock_text: str = "Custom text", fail: bool = False):
         return MockEngine(mock_text=mock_text, fail=fail)
 
