@@ -54,16 +54,26 @@ class MiniCPMEngine(OCREngine):
         if self._model is not None:
             return
 
-        logger.info(f"Loading MiniCPM-V 2.6 (4-bit={self.use_4bit})...")
-
+        import importlib.util
         import torch
         from transformers import AutoModel, AutoTokenizer
+
+        # Check if bitsandbytes is available (not on macOS)
+        use_4bit = self.use_4bit
+        if use_4bit and importlib.util.find_spec("bitsandbytes") is None:
+            logger.warning(
+                "bitsandbytes not available (not supported on macOS). "
+                "Falling back to 16-bit precision."
+            )
+            use_4bit = False
+
+        logger.info(f"Loading MiniCPM-V 2.6 (4-bit={use_4bit})...")
 
         model_name = "openbmb/MiniCPM-V-2_6"
 
         self._tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-        if self.use_4bit:
+        if use_4bit:
             self._model = AutoModel.from_pretrained(
                 model_name,
                 trust_remote_code=True,

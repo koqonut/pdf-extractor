@@ -130,24 +130,24 @@ ocr-got = [
 # MiniCPM-V 2.6 - Top OCRBench performer (8B params, M2-optimized)
 # NOTE: This is a gated model - requires Hugging Face authentication
 # Run: huggingface-cli login
+# NOTE: bitsandbytes (4-bit quantization) not available on macOS - will run in 16-bit instead
 vlm-minicpm = [
     "transformers>=4.40.0",
     "torch>=2.0.0",
     "pillow>=10.0.0",
     "accelerate>=0.25.0",
-    "bitsandbytes>=0.41.0",  # For 4-bit quantization
     "sentencepiece>=0.1.99",
     "huggingface-hub>=0.19.0",  # For authentication
 ]
 
 # Phi-3.5 Vision - Microsoft's small VLM (4.2B params, edge-optimized)
+# NOTE: bitsandbytes (4-bit quantization) not available on macOS - will run in 16-bit instead
 vlm-phi3 = [
     "transformers>=4.43.0",
     "torch>=2.0.0",
     "torchvision>=0.15.0",  # Required for Phi-3.5 Vision
     "pillow>=10.0.0",
     "accelerate>=0.25.0",
-    "bitsandbytes>=0.41.0",
 ]
 
 # PaliGemma 2 - Google's VLM (3B/10B/28B variants)

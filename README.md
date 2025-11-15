@@ -213,6 +213,8 @@ uv pip install -e ".[ocr-surya]"
 uv pip install -e ".[recommended-2025]"
 ```
 
+**Note for macOS users:** 4-bit quantization (bitsandbytes) is not available on macOS. Models will automatically fall back to 16-bit precision, which uses more RAM (~8GB instead of ~4GB) but works fine on M2 Air with 16GB RAM.
+
 ### Hugging Face Authentication Error
 
 If you see `Access to model openbmb/MiniCPM-V-2_6 is restricted`:

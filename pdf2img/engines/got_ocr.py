@@ -9,7 +9,6 @@ import time
 from pathlib import Path
 
 from loguru import logger
-from PIL import Image
 
 from .base import OCREngine, OCRResult, register_engine
 
@@ -74,18 +73,18 @@ class GOTOCREngine(OCREngine):
             # Load model (lazy loading)
             self._load_model()
 
-            # Load image
-            image = Image.open(image_path)
-
             # Run OCR
             logger.info(f"Running GOT-OCR extraction on {image_path.name}...")
 
+            # GOT-OCR expects image path as string, not PIL Image object
+            image_path_str = str(image_path)
+
             if structured:
                 # Extract with structure (tables, formatting)
-                text = self._model.chat(self._tokenizer, image, ocr_type="format")
+                text = self._model.chat(self._tokenizer, image_path_str, ocr_type="format")
             else:
                 # Extract plain text
-                text = self._model.chat(self._tokenizer, image, ocr_type="ocr")
+                text = self._model.chat(self._tokenizer, image_path_str, ocr_type="ocr")
 
             processing_time = time.time() - start_time
 
