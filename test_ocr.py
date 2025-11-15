@@ -15,6 +15,9 @@ Usage:
     # Compare all engines
     python test_ocr.py compare --image flyer.png
 
+    # Compare macOS-compatible engines only (apple-vision, tesseract, easyocr, surya)
+    python test_ocr.py compare-macos --image flyer.png
+
     # Batch test multiple images
     python test_ocr.py batch --images data/images/*.png --engine got-ocr
 
@@ -189,6 +192,18 @@ def compare(
 
         except Exception as e:
             logger.error(f"Failed to test {engine_name}: {e}")
+            # Create a failed result so it still appears in the comparison table
+            results.append(
+                OCRResult(
+                    engine=engine_name,
+                    text="",
+                    processing_time=0.0,
+                    model_size="N/A",
+                    ram_usage_gb=0.0,
+                    success=False,
+                    error=str(e),
+                )
+            )
 
     # Print comparison table
     console.print(f"\n{'='*100}")
@@ -218,6 +233,113 @@ def compare(
 
     console.print(table)
     console.print()
+
+    if save_outputs:
+        successful = sum(1 for r in results if r.success)
+        console.print(
+            f"✓ Saved {successful} outputs to output_*_{image.stem}.txt", style="bold green"
+        )
+
+
+@app.command()
+def compare_macos(
+    image: Path = typer.Option(..., "--image", "-i", help="Path to image file"),
+    save_outputs: bool = typer.Option(False, "--save", help="Save all outputs"),
+):
+    """Compare macOS-compatible OCR engines (apple-vision, tesseract, easyocr, surya)"""
+
+    if not image.exists():
+        console.print(f"Error: Image not found: {image}", style="bold red")
+        raise typer.Exit(1)
+
+    # macOS-compatible engines only
+    macos_engines = ["apple-vision", "tesseract", "easyocr", "surya"]
+
+    # Filter to only available engines
+    available_engines = list_engines()
+    engines_to_test = [e for e in macos_engines if e in available_engines]
+
+    if not engines_to_test:
+        console.print("No macOS-compatible engines available!", style="bold red")
+        console.print("\nInstall with: uv pip install -e '.[macos-compatible]'")
+        raise typer.Exit(1)
+
+    console.print(
+        f"\n[bold]Comparing {len(engines_to_test)} macOS-compatible engines on {image.name}[/bold]"
+    )
+    console.print(f"[dim]Testing: {', '.join(engines_to_test)}[/dim]\n")
+
+    results = []
+
+    # Test each engine
+    for engine_name in engines_to_test:
+        try:
+            eng = get_engine(engine_name)
+            console.print(f"Running {engine_name}...", style="cyan")
+            result = eng._safe_extract(image)
+            results.append(result)
+
+            if save_outputs and result.success:
+                output_file = Path(f"output_{engine_name}_{image.stem}.txt")
+                output_file.write_text(result.text)
+
+        except Exception as e:
+            logger.error(f"Failed to test {engine_name}: {e}")
+            # Create a failed result so it still appears in the comparison table
+            results.append(
+                OCRResult(
+                    engine=engine_name,
+                    text="",
+                    processing_time=0.0,
+                    model_size="N/A",
+                    ram_usage_gb=0.0,
+                    success=False,
+                    error=str(e),
+                )
+            )
+
+    # Print comparison table
+    console.print(f"\n{'='*100}")
+    console.print("[bold]macOS COMPARISON SUMMARY[/bold]")
+    console.print(f"{'='*100}\n")
+
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Engine", style="cyan")
+    table.add_column("Model Size")
+    table.add_column("Time (s)", justify="right")
+    table.add_column("RAM (GB)", justify="right")
+    table.add_column("Chars", justify="right")
+    table.add_column("Status")
+
+    for r in results:
+        status = "✓ OK" if r.success else "✗ FAIL"
+        status_style = "green" if r.success else "red"
+
+        table.add_row(
+            r.engine,
+            r.model_size,
+            f"{r.processing_time:.2f}",
+            f"~{r.ram_usage_gb:.1f}" if r.ram_usage_gb else "N/A",
+            str(len(r.text)) if r.success else "0",
+            f"[{status_style}]{status}[/{status_style}]",
+        )
+
+    console.print(table)
+    console.print()
+
+    # Show best performer
+    successful_results = [r for r in results if r.success]
+    if successful_results:
+        fastest = min(successful_results, key=lambda r: r.processing_time)
+        console.print(
+            f"⚡ [bold green]Fastest: {fastest.engine}[/bold green] ({fastest.processing_time:.2f}s)"
+        )
+
+        most_accurate = max(successful_results, key=lambda r: len(r.text))
+        console.print(
+            f"📝 [bold green]Most text extracted: {most_accurate.engine}[/bold green] ({len(most_accurate.text)} chars)"
+        )
+        console.print()
 
     if save_outputs:
         successful = sum(1 for r in results if r.success)
