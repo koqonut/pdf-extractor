@@ -120,9 +120,11 @@ doc-layoutparser = [
 ocr-got = [
     "transformers>=4.37.0",
     "torch>=2.0.0",
+    "torchvision>=0.15.0",  # Required for GOT-OCR
     "pillow>=10.0.0",
     "accelerate>=0.25.0",
     "tiktoken>=0.5.0",  # Required for GOT-OCR tokenizer
+    "verovio>=4.0.0",  # Required for GOT-OCR music notation
 ]
 
 # MiniCPM-V 2.6 - Top OCRBench performer (8B params, M2-optimized)

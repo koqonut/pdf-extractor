@@ -218,16 +218,22 @@ uv pip install -e ".[recommended-2025]"
 If you see `Access to model openbmb/MiniCPM-V-2_6 is restricted`:
 
 ```bash
-# 1. Get a token from https://huggingface.co/settings/tokens
-# 2. Login:
-huggingface-cli login
+# 1. Visit the model page and request access (approval usually instant):
+# https://huggingface.co/openbmb/MiniCPM-V-2_6
+# Click "Request Access" button
 
-# Or set token:
+# 2. Get a token from https://huggingface.co/settings/tokens
+# Click "New token" → "Read" access is enough
+
+# 3. Login with the token:
+huggingface-cli login
+# Paste your token when prompted
+
+# Or set as environment variable:
 export HF_TOKEN=your_token_here
 
-# 3. Request access to gated models:
-# Visit: https://huggingface.co/openbmb/MiniCPM-V-2_6
-# Click "Request Access"
+# 4. Try again - should work now!
+python test_ocr.py compare --image test_fb.png
 ```
 
 ### All Engines Failing
