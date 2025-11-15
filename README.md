@@ -268,34 +268,57 @@ python test_ocr.py compare --image test.png
 # All engines will work flawlessly with CUDA
 ```
 
-## ⚠️ macOS (Apple Silicon) - Known Issues
+## ⚠️ macOS (Apple Silicon) - See Compatibility Guide
 
 **The 2025 VLMs have macOS compatibility issues:**
 1. **GOT-OCR**: CUDA-only (hardcoded CUDA calls in model code)
 2. **MiniCPM-V**: Requires >16GB RAM on MPS (hangs on 16GB systems)
 3. **Phi-3.5**: DynamicCache bug in model's custom code
 
-**Recommended for macOS users:**
+**✅ What DOES work on macOS M1/M2/M3:**
+- **Apple Vision Framework** ⭐ BEST - Native, fast, excellent accuracy
+- **Tesseract OCR** - ARM-optimized, reliable, industry standard
+- **Surya OCR** - Modern, 90+ languages, MPS support
+- **EasyOCR** - 80+ languages, MPS support
+
+**Quick Start for macOS:**
 ```bash
-# Use Surya (works reliably on macOS):
+# Option 1: Surya (already in this project)
 uv pip install -e ".[ocr-surya]"
 python test_ocr.py test --engine surya --image test.png
 
-# Or use Claude API (cloud-based, 96-98% accuracy)
-# Or use traditional OCR (Tesseract, PaddleOCR)
+# Option 2: Apple Vision Framework (fastest on macOS)
+pip install ocrmac
+python -c "import ocrmac; print(ocrmac.ocr('test.png').as_text())"
+
+# Option 3: Tesseract (traditional, reliable)
+brew install tesseract
+pip install pytesseract
 ```
+
+**📖 [Full macOS Compatibility Guide →](docs/macos-compatibility.md)**
 
 ## 🎯 Summary
 
+### 2025 VLMs (This Project)
 | Engine | Linux+CUDA | macOS (M1/M2/M3) | CPU Only |
 |--------|------------|------------------|----------|
 | GOT-OCR | ✅ Perfect | ❌ CUDA only | ❌ CUDA only |
 | MiniCPM-V | ✅ Perfect | ⚠️ Needs 32GB+ | ⚠️ Slow, works |
 | Phi-3.5 | ✅ Perfect | ❌ Bug in custom code | ❌ Same bug |
 | Surya | ✅ Works | ✅ Works | ✅ Works |
-| Claude API | ✅ Works | ✅ Works | ✅ Works |
 
-**Bottom line: For best experience with 2025 VLMs, use Linux/Windows with NVIDIA GPU.**
+### macOS-Native Solutions (Recommended for M1/M2/M3)
+| Engine | Accuracy | Speed on M2 Air | Install |
+|--------|----------|-----------------|---------|
+| Apple Vision | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ Fast | `pip install ocrmac` |
+| Tesseract 5.0+ | ⭐⭐⭐ | ⭐⭐⭐⭐ Good | `brew install tesseract` |
+| EasyOCR | ⭐⭐⭐⭐ | ⭐⭐⭐ Moderate | `pip install easyocr` |
+| Surya | ⭐⭐⭐⭐ | ⭐⭐⭐ Moderate | Already in project |
+
+**Bottom line:**
+- **For Linux/Windows with CUDA:** Use 2025 VLMs (GOT-OCR, MiniCPM-V, Phi-3.5)
+- **For macOS M1/M2/M3:** Use Apple Vision Framework, Tesseract, or Surya
 
 ---
 
