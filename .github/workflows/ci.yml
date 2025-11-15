@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, claude/* ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        pip install pillow  # Required for tests
+
+    - name: Run black (code formatting check)
+      run: |
+        black --check --line-length 99 pdf2img/ tests/ test_ocr.py
+
+    - name: Run flake8 (linting)
+      run: |
+        flake8 pdf2img/ tests/ test_ocr.py
+
+    - name: Run isort (import sorting check)
+      run: |
+        isort --check-only --profile black pdf2img/ tests/ test_ocr.py
+
+    - name: Run pytest (unit tests)
+      run: |
+        pytest -v --cov=pdf2img --cov-report=xml --cov-report=term
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.11'
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  pre-commit:
+    name: Pre-commit hooks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install pre-commit
+      run: |
+        python -m pip install --upgrade pip
+        pip install pre-commit
+
+    - name: Run pre-commit on all files
+      run: |
+        pre-commit run --all-files

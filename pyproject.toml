@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pdf2img"
@@ -15,7 +15,298 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License"
 ]
-requires-python = "~=3.10"
+requires-python = ">=3.10"
+
+# Core dependencies
+dependencies = [
+    "loguru>=0.7.0",
+    "python-dotenv>=1.0.0",
+    "tqdm>=4.66.0",
+    "typer>=0.9.0",
+    "rich>=13.0.0",  # For beautiful CLI output
+]
+
+[project.optional-dependencies]
+# PDF processing
+pdf = [
+    "pymupdf>=1.23.0",
+    "pdf2image>=1.16.0",
+]
+
+# OCR engines - Traditional
+ocr-tesseract = [
+    "pytesseract>=0.3.10",
+    "opencv-python>=4.8.0",
+    "pillow>=10.0.0",
+]
+
+ocr-paddle = [
+    "paddlepaddle>=2.5.0",
+    "paddleocr>=2.7.0",
+    "opencv-python>=4.8.0",
+    "pillow>=10.0.0",
+]
+
+ocr-easy = [
+    "easyocr>=1.7.0",
+    "pillow>=10.0.0",
+]
+
+ocr-apple = [
+    "pyobjc-framework-Vision>=10.0",
+    "pyobjc-framework-Quartz>=10.0",
+    "pillow>=10.0.0",
+]
+
+# OCR engines - Modern/ML-based
+ocr-surya = [
+    "surya-ocr>=0.4.0",
+    "pillow>=10.0.0",
+]
+
+ocr-trocr = [
+    "transformers>=4.35.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+]
+
+ocr-doctr = [
+    "python-doctr[torch]>=0.7.0",
+    "pillow>=10.0.0",
+]
+
+# Apple Vision Framework - Native macOS OCR (BEST for Apple Silicon)
+# NOTE: Only works on macOS
+ocr-apple-vision = [
+    "ocrmac>=0.1.0",  # Python wrapper for Apple Vision Framework
+]
+
+# EasyOCR - Modern multi-language OCR (80+ languages, GPU support)
+# NOTE: Downloads language models on first use (~100-200MB per language)
+ocr-easyocr = [
+    "easyocr>=1.7.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+]
+
+# Vision-Language Models (for structured extraction)
+vlm-qwen = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "bitsandbytes>=0.41.0",  # For 4-bit quantization
+]
+
+vlm-florence = [
+    "transformers>=4.38.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "timm>=0.9.0",
+]
+
+vlm-moondream = [
+    "transformers>=4.35.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "einops>=0.7.0",
+]
+
+# Document understanding
+doc-donut = [
+    "transformers>=4.35.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "sentencepiece>=0.1.99",
+]
+
+doc-layoutparser = [
+    "layoutparser[ocr]>=0.3.4",
+    "torchvision>=0.15.0",
+    "pillow>=10.0.0",
+]
+
+# ========================================
+# 2025 Modern OCR & Vision Models
+# ========================================
+
+# GOT-OCR 2.0 - Lightweight, excellent OCR (580M params)
+ocr-got = [
+    "transformers>=4.37.0",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",  # Required for GOT-OCR
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "tiktoken>=0.5.0",  # Required for GOT-OCR tokenizer
+    "verovio>=4.0.0",  # Required for GOT-OCR music notation
+]
+
+# MiniCPM-V 2.6 - Top OCRBench performer (8B params, M2-optimized)
+# NOTE: This is a gated model - requires Hugging Face authentication
+# Run: huggingface-cli login
+# NOTE: bitsandbytes (4-bit quantization) not available on macOS - will run in 16-bit instead
+vlm-minicpm = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "sentencepiece>=0.1.99",
+    "huggingface-hub>=0.19.0",  # For authentication
+]
+
+# Phi-3.5 Vision - Microsoft's small VLM (4.2B params, edge-optimized)
+# NOTE: bitsandbytes (4-bit quantization) not available on macOS - will run in 16-bit instead
+# Requires transformers 4.46+ for DynamicCache compatibility
+vlm-phi3 = [
+    "transformers>=4.46.0",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",  # Required for Phi-3.5 Vision
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+]
+
+# PaliGemma 2 - Google's VLM (3B/10B/28B variants)
+vlm-paligemma = [
+    "transformers>=4.45.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+]
+
+# LLaVA-NeXT - Enhanced OCR capabilities
+vlm-llava = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+]
+
+# olmOCR - Allen AI's efficient PDF OCR (based on Qwen2-VL)
+ocr-olm = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+    "accelerate>=0.25.0",
+    "bitsandbytes>=0.41.0",
+]
+
+# PDF extraction tools
+pdf-marker = [
+    "marker-pdf>=1.0.0",
+    "pillow>=10.0.0",
+]
+
+pdf-plumber = [
+    "pdfplumber>=0.11.0",
+    "pandas>=2.0.0",
+]
+
+# Vision API
+vision-api = [
+    "anthropic>=0.18.0",
+]
+
+# Data science tools
+ml = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+]
+
+# Development tools
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "ipykernel>=6.25.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",  # Coverage reporting
+    "pytest-mock>=3.12.0",  # Mocking utilities
+]
+
+# Documentation
+docs = [
+    "mkdocs>=1.5.0",
+]
+
+# Convenience groups
+ocr-traditional = [
+    "pdf2img[ocr-tesseract,ocr-paddle,ocr-easy,ocr-apple]",
+]
+
+ocr-modern = [
+    "pdf2img[ocr-surya,ocr-trocr,ocr-doctr]",
+]
+
+ocr-2025 = [
+    "pdf2img[ocr-got,ocr-olm]",  # Latest OCR models (2024-2025)
+]
+
+ocr-all = [
+    "pdf2img[ocr-traditional,ocr-modern,ocr-2025]",
+]
+
+vlm-2024 = [
+    "pdf2img[vlm-qwen,vlm-florence,vlm-moondream]",
+]
+
+vlm-2025 = [
+    "pdf2img[vlm-minicpm,vlm-phi3,vlm-paligemma,vlm-llava]",  # Latest VLMs
+]
+
+vlm-all = [
+    "pdf2img[vlm-2024,vlm-2025]",
+]
+
+doc-all = [
+    "pdf2img[doc-donut,doc-layoutparser]",
+]
+
+pdf-tools = [
+    "pdf2img[pdf,pdf-marker,pdf-plumber]",
+]
+
+# ========================================
+# Recommended Combinations for M2 Air
+# ========================================
+
+# macOS Compatible (Apple Silicon M1/M2/M3) - RECOMMENDED for macOS
+macos-compatible = [
+    "pdf2img[pdf,ocr-apple-vision,ocr-tesseract,ocr-surya,ocr-easyocr]",  # All work on macOS
+]
+
+# For M2 Air with 16GB RAM - macOS Native (BEST for macOS)
+m2-macos = [
+    "pdf2img[pdf,ocr-apple-vision,ocr-tesseract,ocr-surya]",  # Native + modern OCR
+]
+
+# For Linux/Windows with CUDA - 2025 VLMs (BEST for Linux)
+cuda-2025 = [
+    "pdf2img[pdf,ocr-got,vlm-minicpm,vlm-phi3]",  # Requires NVIDIA GPU
+]
+
+# Recommended combinations (updated)
+recommended-basic = [
+    "pdf2img[pdf,ocr-paddle,ocr-apple]",  # Fast local OCR (original)
+]
+
+recommended-advanced = [
+    "pdf2img[pdf,ocr-surya,vlm-qwen]",  # Best accuracy (original)
+]
+
+recommended-2025 = [
+    "pdf2img[pdf,ocr-got,vlm-minicpm]",  # Latest & greatest (2025)
+]
+
+# Complete installations
+local = [
+    "pdf2img[pdf,ocr-all,vlm-all,doc-all,pdf-tools,ml,dev]",
+]
+
+all = [
+    "pdf2img[local,vision-api]",
+]
 
 [tool.black]
 line-length = 99
@@ -28,5 +319,52 @@ exclude = '''
 '''
 
 [tool.ruff.lint.isort]
-known_first_party = ["pdf2img"]
-force_sort_within_sections = true
+known-first-party = ["pdf2img"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+# Pytest configuration
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Output options
+addopts = [
+    "-v",  # Verbose output
+    "--tb=short",  # Shorter traceback format
+    "--strict-markers",  # Strict marker usage
+    "-ra",  # Show summary of all test results
+]
+
+# Test markers
+markers = [
+    "unit: Unit tests (fast, no external dependencies)",
+    "slow: Slow tests that require model downloads",
+    "integration: Integration tests",
+]
+
+# Coverage options (when using pytest-cov)
+# Run with: pytest --cov=pdf2img --cov-report=html
+[tool.coverage.run]
+source = ["pdf2img"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
