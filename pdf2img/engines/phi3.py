@@ -84,12 +84,14 @@ class Phi3VisionEngine(OCREngine):
                 device_map="auto",
                 load_in_4bit=True,
                 torch_dtype=torch.float16,
+                attn_implementation="eager",  # Disable FlashAttention2 (not available on macOS)
             )
         else:
             self._model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 trust_remote_code=True,
                 torch_dtype=torch.float16,
+                attn_implementation="eager",  # Disable FlashAttention2 (not available on macOS)
             ).to(device)
 
         logger.success(f"Phi-3.5 Vision loaded successfully on {device}")
