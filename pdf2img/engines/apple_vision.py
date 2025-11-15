@@ -63,9 +63,9 @@ class AppleVisionEngine(OCREngine):
         self._check_platform()
 
         try:
-            import ocrmac
+            from ocrmac.ocrmac import OCR
 
-            self._ocrmac = ocrmac
+            self._ocrmac = OCR
             logger.info("Apple Vision Framework ready (native macOS OCR)")
         except ImportError:
             raise ImportError(
@@ -92,8 +92,10 @@ class AppleVisionEngine(OCREngine):
             # Run OCR
             logger.info(f"Running Apple Vision OCR on {image_path.name}...")
 
-            # OCR returns list of tuples: (text, confidence, bbox)
-            annotations = self._ocrmac.OCR(str(image_path)).recognize()
+            # Create OCR object and recognize text
+            # Returns list of tuples: (text, confidence, bbox)
+            ocr = self._ocrmac(str(image_path), framework="vision")
+            annotations = ocr.recognize()
 
             # Extract text from annotations
             if annotations:
