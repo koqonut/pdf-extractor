@@ -142,8 +142,9 @@ vlm-minicpm = [
 
 # Phi-3.5 Vision - Microsoft's small VLM (4.2B params, edge-optimized)
 # NOTE: bitsandbytes (4-bit quantization) not available on macOS - will run in 16-bit instead
+# Requires transformers 4.46+ for DynamicCache compatibility
 vlm-phi3 = [
-    "transformers>=4.43.0",
+    "transformers>=4.46.0",
     "torch>=2.0.0",
     "torchvision>=0.15.0",  # Required for Phi-3.5 Vision
     "pillow>=10.0.0",
