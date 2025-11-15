@@ -75,6 +75,20 @@ ocr-doctr = [
     "pillow>=10.0.0",
 ]
 
+# Apple Vision Framework - Native macOS OCR (BEST for Apple Silicon)
+# NOTE: Only works on macOS
+ocr-apple-vision = [
+    "ocrmac>=0.1.0",  # Python wrapper for Apple Vision Framework
+]
+
+# EasyOCR - Modern multi-language OCR (80+ languages, GPU support)
+# NOTE: Downloads language models on first use (~100-200MB per language)
+ocr-easyocr = [
+    "easyocr>=1.7.0",
+    "torch>=2.0.0",
+    "pillow>=10.0.0",
+]
+
 # Vision-Language Models (for structured extraction)
 vlm-qwen = [
     "transformers>=4.40.0",
@@ -257,19 +271,19 @@ pdf-tools = [
 # Recommended Combinations for M2 Air
 # ========================================
 
-# For M2 Air with 8GB RAM - Lightweight & Fast
-m2-lightweight = [
-    "pdf2img[pdf,ocr-got,vlm-phi3]",  # <5GB RAM, excellent performance
+# macOS Compatible (Apple Silicon M1/M2/M3) - RECOMMENDED for macOS
+macos-compatible = [
+    "pdf2img[pdf,ocr-apple-vision,ocr-surya,ocr-easyocr]",  # All work on macOS
 ]
 
-# For M2 Air with 8GB RAM - Best Performance (with 4-bit quantization)
-m2-performance = [
-    "pdf2img[pdf,ocr-got,vlm-minicpm]",  # Top OCRBench scores
+# For M2 Air with 16GB RAM - macOS Native (BEST for macOS)
+m2-macos = [
+    "pdf2img[pdf,ocr-apple-vision,ocr-surya]",  # Native + modern OCR
 ]
 
-# For M2 Air with 16GB RAM - Everything
-m2-full = [
-    "pdf2img[pdf,ocr-2025,vlm-2025,pdf-tools]",
+# For Linux/Windows with CUDA - 2025 VLMs (BEST for Linux)
+cuda-2025 = [
+    "pdf2img[pdf,ocr-got,vlm-minicpm,vlm-phi3]",  # Requires NVIDIA GPU
 ]
 
 # Recommended combinations (updated)
