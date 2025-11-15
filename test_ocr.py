@@ -18,6 +18,9 @@ Usage:
     # Compare macOS-compatible engines only (apple-vision, tesseract, easyocr, surya)
     python test_ocr.py compare-macos --image flyer.png
 
+    # Extract text from specific colored backgrounds (grocery flyers, highlights, etc.)
+    python test_ocr.py test-colors --image flyer.png --colors red --colors yellow
+
     # Batch test multiple images
     python test_ocr.py batch --images data/images/*.png --engine got-ocr
 
@@ -427,6 +430,159 @@ def engines_table():
 
     console.print("\n[bold]OCR Engines[/bold]\n")
     console.print(table)
+    console.print()
+
+
+@app.command()
+def test_colors(
+    image: Path = typer.Option(..., "--image", "-i", help="Path to image file"),
+    engine: str = typer.Option("apple-vision", "--engine", "-e", help="Engine to use"),
+    colors: List[str] = typer.Option(
+        ..., "--colors", "-c", help="Colors to filter (e.g., red yellow)"
+    ),
+    tolerance: float = typer.Option(
+        1.2, "--tolerance", "-t", help="Color matching tolerance (1.0-2.0)"
+    ),
+    save_filtered: bool = typer.Option(False, "--save-filtered", help="Save filtered image"),
+):
+    """Extract text from specific colored regions only.
+
+    Useful for extracting prices from yellow tags, promotions from red backgrounds, etc.
+
+    Examples:
+        # Extract text from red and yellow backgrounds in a grocery flyer
+        python test_ocr.py test-colors -i flyer.png -c red -c yellow
+
+        # Use Tesseract engine with higher tolerance
+        python test_ocr.py test-colors -i flyer.png -c red -e tesseract -t 1.5
+
+        # Save the filtered image to see what was detected
+        python test_ocr.py test-colors -i flyer.png -c yellow --save-filtered
+
+    Available colors: red, yellow, green, blue, orange, purple
+    """
+    if not image.exists():
+        console.print(f"Error: Image not found: {image}", style="bold red")
+        raise typer.Exit(1)
+
+    try:
+        from pdf2img.utils import apply_color_filter, extract_colored_regions
+    except ImportError as e:
+        console.print(f"Error: {e}", style="bold red")
+        console.print("\nInstall opencv-python: pip install opencv-python", style="yellow")
+        raise typer.Exit(1)
+
+    # Get engine
+    try:
+        eng = get_engine(engine)
+    except Exception as e:
+        console.print(f"Error loading engine '{engine}': {e}", style="bold red")
+        raise typer.Exit(1)
+
+    console.print("\n[bold]Color-Filtered OCR Test[/bold]")
+    console.print(f"Image: {image.name}")
+    console.print(f"Engine: {engine}")
+    console.print(f"Colors: {', '.join(colors)}")
+    console.print(f"Tolerance: {tolerance}x\n")
+
+    # Extract colored regions
+    console.print("🎨 Detecting colored regions...", style="cyan")
+    regions = extract_colored_regions(image, colors, tolerance=tolerance, min_area=100)
+
+    if not regions:
+        console.print("\n⚠️  No regions found with specified colors!", style="yellow")
+        console.print("Try increasing tolerance: --tolerance 1.5 or --tolerance 2.0", style="dim")
+        raise typer.Exit(0)
+
+    console.print(f"✓ Found {len(regions)} colored regions\n", style="green")
+
+    # Show region breakdown
+    from collections import Counter
+
+    region_counts = Counter(r["color"] for r in regions)
+    for color, count in region_counts.items():
+        console.print(f"  • {color}: {count} regions")
+
+    # Run OCR on each region
+    console.print(f"\n📝 Running {engine} OCR on colored regions...\n", style="cyan")
+
+    results_by_color = {color: [] for color in colors}
+    all_text = []
+
+    for i, region in enumerate(regions, 1):
+        console.print(
+            f"  [{i}/{len(regions)}] Processing {region['color']} region "
+            f"({region['bbox'][2]}x{region['bbox'][3]} px)...",
+            style="dim",
+        )
+
+        # Save region as temporary image
+        from tempfile import NamedTemporaryFile
+
+        with NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+            region["image"].save(tmp.name)
+            tmp_path = Path(tmp.name)
+
+        try:
+            # Run OCR on region
+            result = eng._safe_extract(tmp_path)
+
+            if result.success and result.text.strip():
+                results_by_color[region["color"]].append(result.text.strip())
+                all_text.append(result.text.strip())
+        finally:
+            # Clean up temp file
+            tmp_path.unlink()
+
+    # Display results
+    console.print(f"\n{'='*80}")
+    console.print("[bold]COLOR-FILTERED OCR RESULTS[/bold]")
+    console.print(f"{'='*80}\n")
+
+    total_chars = sum(len(t) for t in all_text)
+
+    if not all_text:
+        console.print("❌ No text extracted from colored regions", style="red")
+    else:
+        # Show results by color
+        for color in colors:
+            texts = results_by_color[color]
+            if texts:
+                console.print(
+                    f"[bold {color}]■ {color.upper()} regions ({len(texts)} found):[/bold {color}]"
+                )
+                for text in texts:
+                    # Show first 100 chars of each text block
+                    preview = text[:100] + "..." if len(text) > 100 else text
+                    console.print(f"  {preview}", style="dim")
+                console.print()
+
+        console.print(f"{'='*80}")
+        console.print(f"Total text blocks: {len(all_text)}")
+        console.print(f"Total characters: {total_chars}")
+        console.print(f"{'='*80}\n")
+
+        # Save combined results
+        output_file = image.parent / f"{image.stem}_colors_{'_'.join(colors)}.txt"
+        output_file.write_text("\n\n".join(all_text))
+        console.print(f"✓ Saved combined results to: {output_file}", style="green")
+
+        # Save results by color
+        for color in colors:
+            if results_by_color[color]:
+                color_file = image.parent / f"{image.stem}_color_{color}.txt"
+                color_file.write_text("\n\n".join(results_by_color[color]))
+                console.print(f"✓ Saved {color} results to: {color_file}", style="green")
+
+    # Save filtered image if requested
+    if save_filtered:
+        from PIL import Image as PILImage
+
+        filtered_img = apply_color_filter(PILImage.open(image), colors, tolerance)
+        filtered_path = image.parent / f"{image.stem}_filtered_{'_'.join(colors)}.png"
+        filtered_img.save(filtered_path)
+        console.print(f"\n🎨 Saved filtered image to: {filtered_path}", style="cyan")
+
     console.print()
 
 
