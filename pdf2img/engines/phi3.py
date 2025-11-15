@@ -75,19 +75,21 @@ class Phi3VisionEngine(OCREngine):
 
         model_name = "microsoft/Phi-3.5-vision-instruct"
 
-        self._processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
+        # Use trust_remote_code=False - Phi-3.5 is now officially supported in transformers
+        # Using True loads outdated custom code that causes DynamicCache errors
+        self._processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=False)
 
         # Load config and disable FlashAttention2 (not available on macOS)
         from transformers import AutoConfig
 
-        config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+        config = AutoConfig.from_pretrained(model_name, trust_remote_code=False)
         config._attn_implementation = "eager"
 
         if use_4bit:
             self._model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 config=config,
-                trust_remote_code=True,
+                trust_remote_code=False,
                 device_map="auto",
                 load_in_4bit=True,
                 torch_dtype=torch.float16,
@@ -96,7 +98,7 @@ class Phi3VisionEngine(OCREngine):
             self._model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 config=config,
-                trust_remote_code=True,
+                trust_remote_code=False,
                 torch_dtype=torch.float16,
             ).to(device)
 
