@@ -926,7 +926,7 @@ python test_2025_ocr.py --image flyer.png --engine phi3
 5. **Build production pipeline** with batch processing
 
 For more information:
-- See [GETTING_STARTED.md](GETTING_STARTED.md) for complete setup guide
+- See [README.md](../README.md) for complete setup guide
 - See [M2_SETUP_GUIDE.md](M2_SETUP_GUIDE.md) for M2-specific optimization
 - See [QUICK_INSTALL_GUIDE.md](QUICK_INSTALL_GUIDE.md) for all installation commands
 

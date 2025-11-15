@@ -89,16 +89,16 @@ pip install -e ".[m2-lightweight]"  # GOT-OCR + Phi-3.5
 
 ### 5. **Project Structure Cleanup** (Maintenance)
 - ✅ Removed unused template files (dataset.py, features.py, plots.py, modeling/)
-- ✅ Consolidated 12 markdown docs → 4 essential docs
-- ✅ Updated CLAUDE.md with plugin system documentation
-- ✅ Added MODERN_OCR_2025.md comprehensive guide
+- ✅ Consolidated 12 markdown docs → clean structure
+- ✅ Updated .github/CLAUDE.md with plugin system documentation
+- ✅ Added docs/models-2025.md comprehensive guide
 
 **Files Deleted:**
 - `pdf2img/dataset.py` (empty template)
 - `pdf2img/features.py` (empty template)
 - `pdf2img/plots.py` (empty template)
 - `pdf2img/modeling/` (entire directory - unused)
-- 8 redundant markdown files (consolidated into GETTING_STARTED.md)
+- 8 redundant markdown files (consolidated into README.md and docs/)
 
 ## 🧪 Testing
 
@@ -205,11 +205,10 @@ python test_ocr.py test --image flyer.png --engine my-engine
 ## 📝 Documentation
 
 Updated/Created:
-- ✅ `README.md` - Added plugin system docs, testing instructions
-- ✅ `GETTING_STARTED.md` - Consolidated getting started guide
-- ✅ `MODERN_OCR_2025.md` - Complete guide for 2025 OCR models
-- ✅ `CLAUDE.md` - Updated with plugin pattern and new structure
-- ✅ `PR_TEMPLATE.md` - This file!
+- ✅ `README.md` - Comprehensive guide with plugin system docs and testing instructions
+- ✅ `docs/models-2025.md` - Complete guide for 2025 OCR models
+- ✅ `.github/CLAUDE.md` - Updated with plugin pattern and new structure
+- ✅ `.github/PULL_REQUEST_TEMPLATE.md` - This file!
 
 ## 🐛 Known Issues / Limitations
 
@@ -235,7 +234,7 @@ Updated/Created:
 - [x] Code linted with flake8/ruff
 - [x] Pre-commit hooks pass
 - [x] Documentation updated
-- [x] CLAUDE.md updated
+- [x] .github/CLAUDE.md updated
 - [x] No sensitive data committed
 - [x] Reasonable test coverage (55.83%)
 - [x] CI/CD pipeline configured

@@ -42,8 +42,6 @@ python test_ocr.py compare --image test.png
 
 **New:** Unified test script with plugin system - adding new OCR engines is now trivial!
 
-📖 **[Complete Getting Started Guide →](GETTING_STARTED.md)**
-
 ---
 
 ## 🎯 Comparison: Local vs Cloud
@@ -71,9 +69,7 @@ python test_ocr.py compare --image test.png
 
 **Recommendation:** Use **MiniCPM-V 2.6** (beats GPT-4o, free, local). Or **GOT-OCR 2.0** for fastest speed. Only use Claude API if you need 96-98% accuracy.
 
-📖 **[2025 Models Complete Guide →](MODERN_OCR_2025.md)**
-
-📖 **[See all options and detailed comparison →](GETTING_STARTED.md#extraction-approaches-explained)**
+📖 **[2025 Models Reference Guide →](docs/models-2025.md)**
 
 ## What's Included
 
@@ -95,25 +91,17 @@ python test_ocr.py compare --image test.png
 
 ## 📚 Documentation
 
-| Guide | Description |
-|-------|-------------|
-| **[GETTING_STARTED.md](GETTING_STARTED.md)** ⭐ | **Complete guide: installation, usage, testing, comparison** |
-| **[MODERN_OCR_2025.md](MODERN_OCR_2025.md)** 🚀 | **2025 models reference: MiniCPM-V, GOT-OCR, Phi-3.5, M2 optimization** |
-| [CLAUDE.md](CLAUDE.md) | Codebase documentation for AI assistants |
+**This README has everything to get started!**
 
-That's it! Everything you need is in these 3 files.
+For advanced topics:
+- **[2025 Models Reference](docs/models-2025.md)** - Detailed model comparisons, M2 optimization, advanced configuration
+- **[AI Assistant Guide](.github/CLAUDE.md)** - Codebase documentation for AI assistants
 
 ## Project Organization
 
 ```
 pdf-extractor/
-├── README.md                  # Quick start and overview
-├── GETTING_STARTED.md         # Complete guide
-├── MODERN_OCR_2025.md         # 2025 models reference
-├── CLAUDE.md                  # AI assistant docs
-│
-├── pyproject.toml             # Modern Python config (UV-compatible)
-├── .pre-commit-config.yaml    # Auto-formatting hooks
+├── README.md                  # 👈 You are here - everything you need!
 │
 ├── test_ocr.py                # 🎯 Main CLI - unified test interface
 │
@@ -130,11 +118,12 @@ pdf-extractor/
 │   ├── test_base.py           # Core plugin tests
 │   └── test_engines.py        # Engine integration tests
 │
-├── scripts/                   # Utility scripts (mostly deprecated)
-│   └── README.md              # Use test_ocr.py instead!
+├── docs/                      # Advanced documentation
+│   └── models-2025.md         # 2025 models reference
 │
+├── scripts/                   # Utility scripts (deprecated - use test_ocr.py)
 ├── notebooks/                 # Jupyter exploration
-├── .github/                   # CI/CD & PR templates
+├── .github/                   # CI/CD, PR templates, AI docs
 └── data/                      # Data directories (gitignored)
 ```
 
