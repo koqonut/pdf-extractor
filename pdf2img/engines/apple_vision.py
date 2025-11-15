@@ -92,14 +92,21 @@ class AppleVisionEngine(OCREngine):
             # Run OCR
             logger.info(f"Running Apple Vision OCR on {image_path.name}...")
 
-            # ocrmac.ocr() returns OCRAnnotation object with .as_text() method
-            result = self._ocrmac.ocr(str(image_path))
-            text = result.as_text()
+            # OCR returns list of tuples: (text, confidence, bbox)
+            annotations = self._ocrmac.OCR(str(image_path)).recognize()
+
+            # Extract text from annotations
+            if annotations:
+                # Join all text pieces with newlines
+                text = "\n".join([item[0] for item in annotations])
+            else:
+                text = ""
 
             processing_time = time.time() - start_time
 
             logger.success(
-                f"Apple Vision OCR completed in {processing_time:.2f}s " f"({len(text)} chars)"
+                f"Apple Vision OCR completed in {processing_time:.2f}s "
+                f"({len(text)} chars, {len(annotations)} detections)"
             )
 
             return OCRResult(
@@ -111,6 +118,12 @@ class AppleVisionEngine(OCREngine):
                 metadata={
                     "platform": "macOS",
                     "framework": "Apple Vision Framework",
+                    "num_detections": len(annotations),
+                    "avg_confidence": (
+                        sum(item[1] for item in annotations) / len(annotations)
+                        if annotations
+                        else 0.0
+                    ),
                 },
             )
 
