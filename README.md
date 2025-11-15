@@ -250,6 +250,32 @@ pip list | grep -E "transformers|torch|surya"
 uv pip install -e ".[ocr-got,vlm-phi3,ocr-surya]"
 ```
 
+### macOS Silicon Compatibility
+
+**✅ Works on M1/M2/M3 Macs:**
+- **MiniCPM-V 2.6** - Best accuracy (92-95%), uses MPS with 16-bit precision
+- **Phi-3.5 Vision** - Good accuracy (88-92%), optimized for M2 Air
+- **Surya** - Traditional OCR, works on CPU
+- **Claude API** - Cloud-based, works anywhere
+
+**❌ Does NOT work on macOS:**
+- **GOT-OCR 2.0** - Requires CUDA (NVIDIA GPUs only)
+  - Has hardcoded CUDA calls in model code
+  - No CPU or MPS support
+  - See: https://huggingface.co/stepfun-ai/GOT-OCR2_0/discussions/4
+
+**Recommended for macOS users:**
+```bash
+# Install macOS-compatible engines only:
+uv pip install -e ".[vlm-minicpm,vlm-phi3,ocr-surya]"
+
+# Test with compatible engines:
+python test_ocr.py test --engine minicpm --image test.png
+python test_ocr.py test --engine phi3 --image test.png
+```
+
+**Note:** 4-bit quantization is not available on macOS (bitsandbytes doesn't support MPS). MiniCPM-V and Phi-3.5 will automatically fall back to 16-bit precision, which uses ~8GB RAM instead of ~4GB.
+
 ---
 
 ## 🔌 Plugin System for OCR Engines

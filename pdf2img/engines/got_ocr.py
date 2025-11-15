@@ -17,11 +17,15 @@ from .base import OCREngine, OCRResult, register_engine
 class GOTOCREngine(OCREngine):
     """GOT-OCR 2.0 - Fastest OCR engine with excellent accuracy
 
+    REQUIRES CUDA (NVIDIA GPU) - Does NOT work on macOS or CPU-only systems.
+    For macOS, use MiniCPM-V or Phi-3.5 Vision instead.
+
     Performance:
         - Accuracy: 90-93%
         - Speed: 2-3s per page (fastest!)
         - RAM: ~2GB
         - Model size: 580M parameters
+        - Platform: CUDA only (no CPU/MPS support)
 
     Example:
         engine = GOTOCREngine()
@@ -41,18 +45,17 @@ class GOTOCREngine(OCREngine):
         import torch
         from transformers import AutoModel, AutoTokenizer
 
-        # Determine device: CUDA > CPU
-        # Note: GOT-OCR has hardcoded CUDA calls in its custom code and doesn't support MPS
+        # GOT-OCR ONLY works with CUDA - it has hardcoded CUDA calls in custom model code
         # See: https://huggingface.co/stepfun-ai/GOT-OCR2_0/discussions/4
-        if torch.cuda.is_available():
-            device = "cuda"
-            logger.info("Loading GOT-OCR 2.0 on CUDA...")
-        else:
-            device = "cpu"
-            if torch.backends.mps.is_available():
-                logger.info("Loading GOT-OCR 2.0 on CPU (MPS not supported by this model)...")
-            else:
-                logger.info("Loading GOT-OCR 2.0 on CPU...")
+        if not torch.cuda.is_available():
+            raise RuntimeError(
+                "GOT-OCR requires CUDA and does not support CPU or MPS (Apple Silicon). "
+                "Please use a different engine like 'minicpm' or 'phi3' on macOS. "
+                "See: https://huggingface.co/stepfun-ai/GOT-OCR2_0/discussions/4"
+            )
+
+        device = "cuda"
+        logger.info("Loading GOT-OCR 2.0 on CUDA...")
 
         model_name = "stepfun-ai/GOT-OCR2_0"
 
