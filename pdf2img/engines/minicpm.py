@@ -57,22 +57,26 @@ class MiniCPMEngine(OCREngine):
         import torch
         from transformers import AutoModel, AutoTokenizer
 
-        # Determine device: MPS (Apple Silicon) > CUDA > CPU
-        if torch.backends.mps.is_available():
-            device = "mps"
-        elif torch.cuda.is_available():
+        # Determine device: CUDA > CPU
+        # Note: MiniCPM-V 2.6 requires >16GB RAM on MPS (Apple Silicon)
+        # Using CPU is more stable on 16GB M2 Air systems
+        if torch.cuda.is_available():
             device = "cuda"
         else:
             device = "cpu"
+            if torch.backends.mps.is_available():
+                logger.info(
+                    "Using CPU instead of MPS for better stability on 16GB systems. "
+                    "MiniCPM-V 2.6 requires >16GB RAM with MPS."
+                )
 
-        # Disable 4-bit quantization on MPS (Apple Silicon doesn't support bitsandbytes)
-        use_4bit = self.use_4bit
-        if use_4bit and device == "mps":
+        # 4-bit only works on CUDA
+        use_4bit = self.use_4bit and device == "cuda"
+        if self.use_4bit and not use_4bit:
             logger.warning(
-                "4-bit quantization not supported on Apple Silicon (MPS). "
-                "Falling back to 16-bit precision."
+                "4-bit quantization only supported on CUDA. "
+                "Falling back to 16-bit precision on CPU."
             )
-            use_4bit = False
 
         logger.info(f"Loading MiniCPM-V 2.6 on {device.upper()} (4-bit={use_4bit})...")
 

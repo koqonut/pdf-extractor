@@ -252,11 +252,15 @@ uv pip install -e ".[ocr-got,vlm-phi3,ocr-surya]"
 
 ### macOS Silicon Compatibility
 
-**✅ Works on M1/M2/M3 Macs:**
-- **MiniCPM-V 2.6** - Best accuracy (92-95%), uses MPS with 16-bit precision
-- **Phi-3.5 Vision** - Good accuracy (88-92%), optimized for M2 Air
-- **Surya** - Traditional OCR, works on CPU
+**✅ Recommended for M1/M2/M3 Macs (16GB RAM):**
+- **Phi-3.5 Vision** ⭐ BEST CHOICE - Good accuracy (88-92%), uses ~3-4GB RAM, MPS accelerated
+- **Surya** - Traditional OCR, lightweight, works on CPU
 - **Claude API** - Cloud-based, works anywhere
+
+**⚠️ Limited macOS Support:**
+- **MiniCPM-V 2.6** - Best accuracy (92-95%) BUT requires >16GB RAM with MPS
+  - Uses CPU fallback on 16GB systems (slower but stable)
+  - Recommended for M2/M3 Pro/Max with 32GB+ RAM
 
 **❌ Does NOT work on macOS:**
 - **GOT-OCR 2.0** - Requires CUDA (NVIDIA GPUs only)
@@ -264,17 +268,26 @@ uv pip install -e ".[ocr-got,vlm-phi3,ocr-surya]"
   - No CPU or MPS support
   - See: https://huggingface.co/stepfun-ai/GOT-OCR2_0/discussions/4
 
-**Recommended for macOS users:**
+**Recommended for macOS users with 16GB RAM:**
 ```bash
-# Install macOS-compatible engines only:
-uv pip install -e ".[vlm-minicpm,vlm-phi3,ocr-surya]"
+# Install Phi-3.5 (best for 16GB systems):
+uv pip install -e ".[vlm-phi3]"
 
-# Test with compatible engines:
-python test_ocr.py test --engine minicpm --image test.png
+# Test:
 python test_ocr.py test --engine phi3 --image test.png
 ```
 
-**Note:** 4-bit quantization is not available on macOS (bitsandbytes doesn't support MPS). MiniCPM-V and Phi-3.5 will automatically fall back to 16-bit precision, which uses ~8GB RAM instead of ~4GB.
+**For M2/M3 Pro/Max with 32GB+ RAM:**
+```bash
+# Can use MiniCPM-V with MPS (edit minicpm.py to re-enable MPS):
+uv pip install -e ".[vlm-minicpm]"
+python test_ocr.py test --engine minicpm --image test.png
+```
+
+**Memory Requirements:**
+- **Phi-3.5**: ~4GB (works great on 16GB M2 Air with MPS)
+- **MiniCPM-V**: ~16GB with MPS, ~8GB with CPU (needs 32GB total for MPS)
+- **GOT-OCR**: CUDA only (not available on macOS)
 
 ---
 
