@@ -77,21 +77,27 @@ class Phi3VisionEngine(OCREngine):
 
         self._processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
 
+        # Load config and disable FlashAttention2 (not available on macOS)
+        from transformers import AutoConfig
+
+        config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+        config._attn_implementation = "eager"
+
         if use_4bit:
             self._model = AutoModelForCausalLM.from_pretrained(
                 model_name,
+                config=config,
                 trust_remote_code=True,
                 device_map="auto",
                 load_in_4bit=True,
                 torch_dtype=torch.float16,
-                attn_implementation="eager",  # Disable FlashAttention2 (not available on macOS)
             )
         else:
             self._model = AutoModelForCausalLM.from_pretrained(
                 model_name,
+                config=config,
                 trust_remote_code=True,
                 torch_dtype=torch.float16,
-                attn_implementation="eager",  # Disable FlashAttention2 (not available on macOS)
             ).to(device)
 
         logger.success(f"Phi-3.5 Vision loaded successfully on {device}")
