@@ -273,12 +273,12 @@ pdf-tools = [
 
 # macOS Compatible (Apple Silicon M1/M2/M3) - RECOMMENDED for macOS
 macos-compatible = [
-    "pdf2img[pdf,ocr-apple-vision,ocr-surya,ocr-easyocr]",  # All work on macOS
+    "pdf2img[pdf,ocr-apple-vision,ocr-tesseract,ocr-surya,ocr-easyocr]",  # All work on macOS
 ]
 
 # For M2 Air with 16GB RAM - macOS Native (BEST for macOS)
 m2-macos = [
-    "pdf2img[pdf,ocr-apple-vision,ocr-surya]",  # Native + modern OCR
+    "pdf2img[pdf,ocr-apple-vision,ocr-tesseract,ocr-surya]",  # Native + modern OCR
 ]
 
 # For Linux/Windows with CUDA - 2025 VLMs (BEST for Linux)
