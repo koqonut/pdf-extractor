@@ -27,6 +27,10 @@ uv pip install -e ".[recommended-2025]"
 # Alternative: For 8GB M2 Air
 uv pip install -e ".[m2-performance]"
 
+# 3b. Authenticate with Hugging Face (required for MiniCPM-V)
+huggingface-cli login
+# Or set: export HF_TOKEN=your_token_here
+
 # 4. Get a flyer image from https://flipp.com
 # Save screenshot as: data/raw/samples/test.png
 
@@ -185,6 +189,58 @@ pytest -s
 - `@pytest.mark.unit` - Fast unit tests (no external dependencies)
 - `@pytest.mark.slow` - Slow tests requiring model downloads
 - `@pytest.mark.integration` - Integration tests
+
+---
+
+## 🔧 Troubleshooting
+
+### Missing Dependencies Error
+
+If you see errors like `No module named 'tiktoken'` or `No module named 'torchvision'`:
+
+```bash
+# You need to install the specific engine dependencies
+# For GOT-OCR:
+uv pip install -e ".[ocr-got]"
+
+# For Phi-3.5 Vision:
+uv pip install -e ".[vlm-phi3]"
+
+# For Surya:
+uv pip install -e ".[ocr-surya]"
+
+# Or install all recommended 2025 models:
+uv pip install -e ".[recommended-2025]"
+```
+
+### Hugging Face Authentication Error
+
+If you see `Access to model openbmb/MiniCPM-V-2_6 is restricted`:
+
+```bash
+# 1. Get a token from https://huggingface.co/settings/tokens
+# 2. Login:
+huggingface-cli login
+
+# Or set token:
+export HF_TOKEN=your_token_here
+
+# 3. Request access to gated models:
+# Visit: https://huggingface.co/openbmb/MiniCPM-V-2_6
+# Click "Request Access"
+```
+
+### All Engines Failing
+
+If all engines show "FAIL" status:
+
+```bash
+# Check what's installed:
+pip list | grep -E "transformers|torch|surya"
+
+# Reinstall with specific engines:
+uv pip install -e ".[ocr-got,vlm-phi3,ocr-surya]"
+```
 
 ---
 
