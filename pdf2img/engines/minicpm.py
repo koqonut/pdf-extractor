@@ -54,29 +54,27 @@ class MiniCPMEngine(OCREngine):
         if self._model is not None:
             return
 
-        import importlib.util
         import torch
         from transformers import AutoModel, AutoTokenizer
-
-        # Check if bitsandbytes is available (not on macOS)
-        use_4bit = self.use_4bit
-        if use_4bit and importlib.util.find_spec("bitsandbytes") is None:
-            logger.warning(
-                "bitsandbytes not available (not supported on macOS). "
-                "Falling back to 16-bit precision."
-            )
-            use_4bit = False
 
         # Determine device: MPS (Apple Silicon) > CUDA > CPU
         if torch.backends.mps.is_available():
             device = "mps"
-            logger.info(f"Loading MiniCPM-V 2.6 on Apple Silicon (MPS, 4-bit={use_4bit})...")
         elif torch.cuda.is_available():
             device = "cuda"
-            logger.info(f"Loading MiniCPM-V 2.6 on CUDA (4-bit={use_4bit})...")
         else:
             device = "cpu"
-            logger.info(f"Loading MiniCPM-V 2.6 on CPU (4-bit={use_4bit})...")
+
+        # Disable 4-bit quantization on MPS (Apple Silicon doesn't support bitsandbytes)
+        use_4bit = self.use_4bit
+        if use_4bit and device == "mps":
+            logger.warning(
+                "4-bit quantization not supported on Apple Silicon (MPS). "
+                "Falling back to 16-bit precision."
+            )
+            use_4bit = False
+
+        logger.info(f"Loading MiniCPM-V 2.6 on {device.upper()} (4-bit={use_4bit})...")
 
         model_name = "openbmb/MiniCPM-V-2_6"
 

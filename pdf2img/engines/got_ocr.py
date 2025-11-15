@@ -41,16 +41,18 @@ class GOTOCREngine(OCREngine):
         import torch
         from transformers import AutoModel, AutoTokenizer
 
-        # Determine device: MPS (Apple Silicon) > CUDA > CPU
-        if torch.backends.mps.is_available():
-            device = "mps"
-            logger.info("Loading GOT-OCR 2.0 on Apple Silicon (MPS)...")
-        elif torch.cuda.is_available():
+        # Determine device: CUDA > CPU
+        # Note: GOT-OCR has hardcoded CUDA calls in its custom code and doesn't support MPS
+        # See: https://huggingface.co/stepfun-ai/GOT-OCR2_0/discussions/4
+        if torch.cuda.is_available():
             device = "cuda"
             logger.info("Loading GOT-OCR 2.0 on CUDA...")
         else:
             device = "cpu"
-            logger.info("Loading GOT-OCR 2.0 on CPU...")
+            if torch.backends.mps.is_available():
+                logger.info("Loading GOT-OCR 2.0 on CPU (MPS not supported by this model)...")
+            else:
+                logger.info("Loading GOT-OCR 2.0 on CPU...")
 
         model_name = "stepfun-ai/GOT-OCR2_0"
 

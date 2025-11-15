@@ -51,29 +51,27 @@ class Phi3VisionEngine(OCREngine):
         if self._model is not None:
             return
 
-        import importlib.util
         import torch
         from transformers import AutoModelForCausalLM, AutoProcessor
-
-        # Check if bitsandbytes is available (not on macOS)
-        use_4bit = self.use_4bit
-        if use_4bit and importlib.util.find_spec("bitsandbytes") is None:
-            logger.warning(
-                "bitsandbytes not available (not supported on macOS). "
-                "Falling back to 16-bit precision."
-            )
-            use_4bit = False
 
         # Determine device: MPS (Apple Silicon) > CUDA > CPU
         if torch.backends.mps.is_available():
             device = "mps"
-            logger.info(f"Loading Phi-3.5 Vision on Apple Silicon (MPS, 4-bit={use_4bit})...")
         elif torch.cuda.is_available():
             device = "cuda"
-            logger.info(f"Loading Phi-3.5 Vision on CUDA (4-bit={use_4bit})...")
         else:
             device = "cpu"
-            logger.info(f"Loading Phi-3.5 Vision on CPU (4-bit={use_4bit})...")
+
+        # Disable 4-bit quantization on MPS (Apple Silicon doesn't support bitsandbytes)
+        use_4bit = self.use_4bit
+        if use_4bit and device == "mps":
+            logger.warning(
+                "4-bit quantization not supported on Apple Silicon (MPS). "
+                "Falling back to 16-bit precision."
+            )
+            use_4bit = False
+
+        logger.info(f"Loading Phi-3.5 Vision on {device.upper()} (4-bit={use_4bit})...")
 
         model_name = "microsoft/Phi-3.5-vision-instruct"
 
